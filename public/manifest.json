@@ -1,0 +1,8 @@
+{
+  "short_name": "JFT Irodori",
+  "name": "Irodori JFT-Basic Preparation App",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#4338ca",
+  "background_color": "#f8fafc"
+}
