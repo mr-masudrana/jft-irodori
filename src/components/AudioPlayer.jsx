@@ -1,97 +1,66 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Play, Pause, Repeat, Gauge } from 'lucide-react';
+import { speakJa, stopSpeech } from '../lib/store';
 
-export default function AudioPlayer({ src, compact = false }) {
-  const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playCount, setPlayCount] = useState(0);
-  const [isJftMode, setIsJftMode] = useState(false);
+// MP3 না থাকলে (বা ব্যর্থ হলে) নিজে থেকেই ব্রাউজারের জাপানিজ TTS ব্যবহার করে।
+export default function AudioPlayer({ src, text, compact = false }) {
+  const audio = useRef(null), timer = useRef(null), speedRef = useRef(1), failed = useRef(!src);
+  const [playing, setPlaying] = useState(false);
+  const [jft, setJft] = useState(false);
+  const [count, setCount] = useState(0);
   const [speed, setSpeed] = useState(1);
+  const [note, setNote] = useState('');
 
-  const handlePlay = (jft = false) => {
-    if (!audioRef.current) return;
-    if (isPlaying && isJftMode === jft) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-      return;
-    }
-    setIsJftMode(jft);
-    setPlayCount(1);
-    audioRef.current.currentTime = 0;
-    audioRef.current.playbackRate = speed;
-    audioRef.current.play()
-      .then(() => setIsPlaying(true))
-      .catch(() => {
-        setIsPlaying(false);
-        alert("অডিও ফাইল পাওয়া যায়নি। public/audio/ ফোল্ডারে MP3 রাখুন।");
-      });
+  const stop = () => {
+    audio.current?.pause(); stopSpeech(); clearTimeout(timer.current);
+    setPlaying(false); setCount(0);
+  };
+  useEffect(() => () => { clearTimeout(timer.current); }, []);
+
+  const playOnce = (n, total) => {
+    setCount(n);
+    const done = () => {
+      if (n < total) timer.current = setTimeout(() => playOnce(n + 1, total), 1500);
+      else { setPlaying(false); setCount(0); }
+    };
+    const tts = () => {
+      if (!text) { setPlaying(false); setNote('অডিও নেই'); return; }
+      speakJa(text, { rate: 0.85 * speedRef.current, onend: done });
+    };
+    if (!failed.current && audio.current) {
+      audio.current.currentTime = 0; audio.current.playbackRate = speedRef.current; audio.current.onended = done;
+      audio.current.play().catch(() => { failed.current = true; tts(); });
+    } else tts();
   };
 
-  const handleEnded = () => {
-    if (isJftMode && playCount < 2) {
-      setTimeout(() => {
-        setPlayCount(2);
-        if (audioRef.current) audioRef.current.play().catch(() => setIsPlaying(false));
-      }, 1500);
-    } else {
-      setIsPlaying(false);
-      setIsJftMode(false);
-      setPlayCount(0);
-    }
+  const start = (mode) => {
+    if (playing) return stop();
+    setNote(''); setJft(mode); setPlaying(true); playOnce(1, mode ? 2 : 1);
   };
+  const toggleSpeed = () => { const s = speedRef.current === 1 ? 0.75 : 1; speedRef.current = s; setSpeed(s); if (audio.current) audio.current.playbackRate = s; };
 
-  const toggleSpeed = () => {
-    const newSpeed = speed === 1 ? 0.75 : 1;
-    setSpeed(newSpeed);
-    if (audioRef.current) audioRef.current.playbackRate = newSpeed;
-  };
-
+  const el = src ? <audio ref={audio} src={src} preload="none" onError={() => { failed.current = true; }} /> : null;
   if (compact) {
     return (
-      <div>
-        <audio ref={audioRef} src={src} onEnded={handleEnded} />
-        <button
-          onClick={() => handlePlay(false)}
-          className={`p-2.5 rounded-full transition ${
-            isPlaying ? 'bg-amber-500 text-white' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'
-          }`}
-        >
-          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+      <>{el}
+        <button onClick={() => start(false)} aria-label="Play"
+          className={`w-10 h-10 rounded-full grid place-items-center transition active:scale-95 ${playing ? 'btn-p' : 'chip-b'}`}>
+          {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
         </button>
-      </div>
+      </>
     );
   }
-
   return (
-    <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200/80">
-      <audio ref={audioRef} src={src} onEnded={handleEnded} />
-      <button
-        onClick={() => handlePlay(false)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
-          isPlaying && !isJftMode ? 'bg-amber-500 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700'
-        }`}
-      >
-        {isPlaying && !isJftMode ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-        <span>Play</span>
+    <div className="flex items-center gap-2 flex-wrap">
+      {el}
+      <button onClick={() => start(false)} className={`btn ${playing && !jft ? 'btn-p' : 'btn-g'} !py-2 !px-3 text-xs`}>
+        {playing && !jft ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />} Play
       </button>
-
-      <button
-        onClick={() => handlePlay(true)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
-          isPlaying && isJftMode ? 'bg-emerald-700 text-white' : 'bg-emerald-600 text-white hover:bg-emerald-700'
-        }`}
-      >
-        <Repeat className="w-3.5 h-3.5" />
-        <span>2x {isJftMode ? `(${playCount}/2)` : ''}</span>
+      <button onClick={() => start(true)} className={`btn ${playing && jft ? 'btn-p' : 'btn-g'} !py-2 !px-3 text-xs`}>
+        <Repeat className="w-3.5 h-3.5" /> 2x {playing && jft ? `(${count}/2)` : ''}
       </button>
-
-      <button
-        onClick={toggleSpeed}
-        className="flex items-center gap-1 px-2.5 py-1.5 bg-white text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 ml-auto"
-      >
-        <Gauge className="w-3.5 h-3.5 text-indigo-500" />
-        <span>{speed}x</span>
-      </button>
+      <button onClick={toggleSpeed} className="btn btn-g !py-2 !px-3 text-xs ml-auto"><Gauge className="w-3.5 h-3.5" /> {speed}x</button>
+      {note && <span className="t-mu text-xs w-full">{note}</span>}
     </div>
   );
 }
