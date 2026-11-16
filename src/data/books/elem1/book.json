@@ -1,0 +1,10 @@
+{
+  "id": "elem1",
+  "title": "Irodori Elementary 1",
+  "jpTitle": "いろどり 初級1",
+  "level": "A2 • JFT Core",
+  "badgeColor": "bg-indigo-50 text-indigo-700 border-indigo-200",
+  "iconBg": "bg-indigo-600",
+  "totalLessons": 18,
+  "order": 2
+}

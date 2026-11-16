@@ -1,0 +1,115 @@
+{
+  "id": "starter-l13",
+  "lessonNumber": 13,
+  "title": "Does this bus go to the airport?",
+  "titleBn": "এই বাস কি বিমানবন্দরে যায়?",
+  "topic": "Walking around Town",
+  "activities": [
+    {
+      "no": 1,
+      "title": "何番線ですか？",
+      "canDo": "Can ask whether a train or bus is going to where you want to go and understand the answer.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "すみません、今どこですか？",
+      "canDo": "Can listen to a station name being announced on a train, and ask someone if you don't really understand it.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "1時間ぐらいかかります",
+      "canDo": "Can say how you go to work, and how long it takes.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "市役所まで、どうやって行きますか？",
+      "canDo": "Can ask questions about how to get to your destination and understand the answers.",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "駅の中の表示",
+      "canDo": "Can look at common signs in a station and understand what they mean.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "この【vehicle】は【place】に行きますか？",
+      "example": "このバスは、空港に行きますか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "ここは【place】ですか？",
+      "example": "ここは、どこですか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【vehicle】で来ます",
+      "example": "バイクで来ます。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【time / period】かかります",
+      "example": "1時間半かかります。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【place】で【vehicle】に乗ります / 【place】で【vehicle】を降ります",
+      "example": "ここから、12番のバスに乗ります。 / バスセンターで、バスを降ります。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【place】から【place】まで",
+      "example": "ここから新みなと駅まで、電車に乗ります。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "東",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "西",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "南",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "北",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "会社",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "来ます",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "行きます",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "乗ります",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

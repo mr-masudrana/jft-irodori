@@ -1,0 +1,110 @@
+{
+  "id": "starter-l16",
+  "lessonNumber": 16,
+  "title": "How much is this?",
+  "titleBn": "এটার দাম কত?",
+  "topic": "At Stores",
+  "activities": [
+    {
+      "no": 1,
+      "title": "1,980円です",
+      "canDo": "Can listen to and understand the price of a product.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "あのTシャツ、いくらですか？",
+      "canDo": "Can ask store staff the price of something and understand the answer.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "ひき肉200gください",
+      "canDo": "Can say how much / many you need when shopping.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "こちら、温めますか？",
+      "canDo": "Can answer questions at a convenience store checkout, such as “Do you want chopsticks?” and “Would you like a bag?”",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "割引表示",
+      "canDo": "Can look at a discount sign in a store and understand the price.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "【これ／それ／あれ】(は)いくらですか？",
+      "example": "これ、いくらですか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【この／その／あの】N",
+      "example": "そのカレンダー、いくらですか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【amount】ずつ",
+      "example": "チョコレートケーキとチーズケーキ、2個ずつお願いします。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "一",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "二",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "三",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "四",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "五",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "六",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "七",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "八",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "九",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "十",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

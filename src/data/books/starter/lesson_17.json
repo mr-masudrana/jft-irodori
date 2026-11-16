@@ -1,0 +1,115 @@
+{
+  "id": "starter-l17",
+  "lessonNumber": 17,
+  "title": "I went to see a movie.",
+  "titleBn": "আমি সিনেমা দেখতে গিয়েছিলাম।",
+  "topic": "Holidays",
+  "activities": [
+    {
+      "no": 1,
+      "title": "週末は何をしましたか？",
+      "canDo": "Can give a simple answer when asked what you did on your day off.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "楽しかったです",
+      "canDo": "Can ask and answer questions about what you did on your day off and your impressions.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "家族で水族館に行きました",
+      "canDo": "Can read a simple social media post and understand what the person did with help from a photograph.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "料金表",
+      "canDo": "Can read the price list at a local facility and understand how much to pay.",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "今、家に着きました",
+      "canDo": "Can send someone a simple message with your impressions after you have gone somewhere together.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "V-ました / V-ませんでした",
+      "example": "家でゆっくりしました。 / 週末は、何もしませんでした。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "何もV-ませんでした / どこにもV-ませんでした",
+      "example": "私は、どこにも行きませんでした。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "ナA-でした / イA-かったです",
+      "example": "国際フェスティバルは、とても楽しかったです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nでした",
+      "example": "とてもいい天気でした。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nじゃなかったです / ナA-じゃなかったです / イA-くなかったです",
+      "example": "お客さんは、あまり多くなかったです。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "百",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "千",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "万",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～円",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "休み",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "映画",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "日本語",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "勉強します",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "買います",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

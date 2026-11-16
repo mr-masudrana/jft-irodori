@@ -1,0 +1,94 @@
+{
+  "id": "starter-l11",
+  "lessonNumber": 11,
+  "title": "What kind of manga do you like?",
+  "titleBn": "তুমি কেমন মাঙ্গা পছন্দ করো?",
+  "topic": "What I Like to Do",
+  "activities": [
+    {
+      "no": 1,
+      "title": "趣味は何ですか？",
+      "canDo": "Can give a simple answer when asked about your hobbies.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "「ドラゴンボール」が大好きです",
+      "canDo": "Can ask and answer questions about your hobbies and favorite things to do.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "うちでゆっくりします",
+      "canDo": "Can ask and answer questions about what you do on your days off.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "SNSのプロフィール",
+      "canDo": "Can read a simple social media profile and understand what that person likes.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "Nは何ですか？",
+      "example": "趣味は、何ですか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "どんなN",
+      "example": "どんなスポーツが好きですか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "あまり ナA-じゃないです / イA-くないです",
+      "example": "スポーツは、あまり好きじゃないです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【いつも／たいてい／よく／ときどき】V-ます / 【あまり／ぜんぜん】V-ません",
+      "example": "休みの日は、たいてい、映画を見ます。 / スポーツは、ぜんぜんしません。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【person】と【place】でV-ます",
+      "example": "夫と公園でテニスをします。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "読みます",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "聞きます",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "見ます",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "本",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "友だち",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "何",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

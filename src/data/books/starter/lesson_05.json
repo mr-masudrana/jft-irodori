@@ -1,0 +1,90 @@
+{
+  "id": "starter-l5",
+  "lessonNumber": 5,
+  "title": "I like udon.",
+  "titleBn": "আমি উদন পছন্দ করি।",
+  "topic": "My Favorite Foods",
+  "activities": [
+    {
+      "no": 1,
+      "title": "魚、好きですか？",
+      "canDo": "Can answer questions about foods you like and dislike.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "わさびは、ちょっと…",
+      "canDo": "Can ask and answer questions about Japanese food you like or dislike.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "お茶、飲みますか？",
+      "canDo": "Can respond when offered a drink, for example by saying what you want to drink.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "朝ご飯は、あまり食べません",
+      "canDo": "Can ask and answer questions about what you eat for breakfast.",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "今日の朝ご飯",
+      "canDo": "Can write a simple explanation about a photograph of food and post it on social media.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "Nが好きです",
+      "example": "肉と野菜が好きです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nはちょっと…",
+      "example": "わさびは、ちょっと…。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "V-ますか？",
+      "example": "お茶、飲みますか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "NをV-ます",
+      "example": "シリアルを食べます。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "(Nは)V-ません",
+      "example": "私は、朝ご飯は、あまり食べません。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【いつも／よく】V-ます / あまり V-ません",
+      "example": "私は、パンと、卵と、ヨーグルトをよく食べます。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "水",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "食べます",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "飲みます",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

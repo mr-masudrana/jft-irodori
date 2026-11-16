@@ -17,6 +17,9 @@ npm run build
 - নতুন UI: নিচের ট্যাব বার, ডার্ক মোড, safe-area, zoom চালু
 
 ## কনটেন্ট যোগ
-`src/data/books_data.json`-এ লেসন যোগ করুন (id, lessonNumber, title, titleBn, canDos, vocabulary, dialogues, grammar, kanji)।
+ডেটার গঠন: `src/data/books/<বই>/book.json` (বইয়ের তথ্য) + `src/data/books/<বই>/lesson_01.json`, `lesson_02.json` ... নতুন ফাইল যোগ করলে নিজে থেকেই লোড হয় (index.js বদলাতে হয় না)।
+URL hash দিয়ে নেভিগেশন চলে: রিফ্রেশে একই পেজে থাকে, ফোনের ব্যাক বাটন ধাপে ধাপে পেছনে যায়।
+নেভিগেশন: বই → লেসন (টপিকসহ) → লেসনের অ্যাক্টিভিটি/বিস্তারিত → বিস্তারিত।
+লেসনের গঠন: id, lessonNumber, title, titleBn, topic, activities[{no,title,canDo,dialogues[]}], dialogues[], vocabulary[], grammar[], kanji[]।
 অডিও থাকলে `public/audio/...` এ রাখুন, না থাকলে TTS চলবে।
 মক টেস্টের প্রশ্ন `src/data/mock_exam.json`-এ; শোনার প্রশ্নে `transcript` দিলে অডিও ছাড়াও TTS-এ চলবে।

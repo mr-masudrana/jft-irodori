@@ -1,0 +1,80 @@
+{
+  "id": "starter-l6",
+  "lessonNumber": 6,
+  "title": "I'd like a cheeseburger, please.",
+  "titleBn": "আমি একটি চিজবার্গার চাই।",
+  "topic": "My Favorite Foods",
+  "activities": [
+    {
+      "no": 1,
+      "title": "ハンバーガー店のメニュー",
+      "canDo": "Can look at a menu in a fast food restaurant and understand what is available.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "こちらでおめしあがりですか？",
+      "canDo": "Can order in a fast food restaurant.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "私はカレーにします",
+      "canDo": "Can ask and answer questions about what you want to eat when eating with other people.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "枝豆2つください",
+      "canDo": "Can order food at a restaurant and ask for a plate or glass, etc.",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "飲食店の看板",
+      "canDo": "Can look at different restaurants' signboards and understand what each place is.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "N、お願いします / N、ください",
+      "example": "ホットコーヒー、お願いします。 / これ、ください。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nにします",
+      "example": "私は、うどんにします。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "N、【number】お願いします",
+      "example": "生ビール3つと、ウーロン茶1つ、お願いします。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "N(は)ありますか？",
+      "example": "マヨネーズ、ありますか？",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "魚",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "肉",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "好き(な)",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

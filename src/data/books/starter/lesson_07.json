@@ -1,0 +1,90 @@
+{
+  "id": "starter-l7",
+  "lessonNumber": 7,
+  "title": "There are four rooms.",
+  "titleBn": "এখানে চারটি ঘর আছে।",
+  "topic": "Homes and Workplaces",
+  "activities": [
+    {
+      "no": 1,
+      "title": "ここは台所です",
+      "canDo": "Can listen to simple explanations when being shown around a house and understand the layout.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "電子レンジはありますか？",
+      "canDo": "Can ask and check whether a house or room has everything you need.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "ちょっとせまいです",
+      "canDo": "Can give a simple answer when asked where you live and what your house is like.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "アパートに住んでいます",
+      "canDo": "Can ask and answer questions about what kind of house you live in.",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "洗濯機・エアコンのボタン",
+      "canDo": "Can read the buttons on an electric appliance and understand which one to press.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "ここは【place】です",
+      "example": "ここは玄関です。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【place】にNがあります",
+      "example": "ここに階段があります。 / 1階に部屋が4つあります。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "(Nは)ありません / (Nは)ないです",
+      "example": "トースターはありません。 / ベッドはないです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "ナA-です / イA-です",
+      "example": "家は静かです。 / ちょっとせまいです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "ナA-じゃないです / イA-くないです",
+      "example": "アパートは、あまり静かじゃないです。 / 寮は広くないです。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "家",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "新しい",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "広い",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "古い",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

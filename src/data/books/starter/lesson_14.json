@@ -1,0 +1,89 @@
+{
+  "id": "starter-l14",
+  "lessonNumber": 14,
+  "title": "It's a big building, isn't it.",
+  "titleBn": "এটা একটা বড় ভবন, তাই না?",
+  "topic": "Walking around Town",
+  "activities": [
+    {
+      "no": 1,
+      "title": "トイレはどこですか？",
+      "canDo": "Can ask where the toilets or an ATM, etc., are.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "今、改札の前にいます",
+      "canDo": "Can tell someone on the phone where you are.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "ここは十条商店街です",
+      "canDo": "Can tell someone your impressions when they show you around town.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "街にある看板",
+      "canDo": "Can read a sign in a store, restaurant, etc. and understand when it is open or closed, etc.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "【place】にN(は)ありますか？",
+      "example": "この近くに、コンビニはありますか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nの【location】にいます",
+      "example": "今、改札の前にいます。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "ナA-なNですね / イA-いNですね",
+      "example": "にぎやかな通りですね。 / 広い公園ですね。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "大きい",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "小さい",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "高い",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "低い",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "前",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "後ろ",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "横",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

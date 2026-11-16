@@ -1,0 +1,79 @@
+{
+  "id": "starter-l8",
+  "lessonNumber": 8,
+  "title": "Where is Yamada-san?",
+  "titleBn": "ইয়ামাদা-সান কোথায়?",
+  "topic": "Homes and Workplaces",
+  "activities": [
+    {
+      "no": 1,
+      "title": "ここで打ち合わせをします",
+      "canDo": "Can listen to a simple explanation when being shown around a room at work and understand what room it is.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "食堂にいます",
+      "canDo": "Can ask and answer questions about where someone is.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "はさみは、そこにあります",
+      "canDo": "Can ask and answer questions about where some equipment is, for example at work.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "部屋の表示",
+      "canDo": "Can look at a sign at the entrance to a room and understand what room it is.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "【place】でV-ます",
+      "example": "ここで着替えます。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【person】は【place】にいます",
+      "example": "山田さんは、食堂にいます。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "(【person】は)いません / いないです",
+      "example": "辻さん、いませんね。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【something】は【ここ／そこ／あそこ】にあります",
+      "example": "はさみは、そこにあります。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nの【location】にあります",
+      "example": "引き出しの中にあります。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "上",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "下",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "中",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

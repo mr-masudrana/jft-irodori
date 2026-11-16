@@ -1,0 +1,95 @@
+{
+  "id": "starter-l10",
+  "lessonNumber": 10,
+  "title": "Please lend me the stapler.",
+  "titleBn": "দয়া করে স্ট্যাপলারটি ধার দিন।",
+  "topic": "Daily Life",
+  "activities": [
+    {
+      "no": 1,
+      "title": "ちょっと手伝ってください",
+      "canDo": "Can listen to short and simple instructions at work and understand what to do.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "すみません、いくつですか？",
+      "canDo": "Can confirm and ask someone to repeat the important points when you receive instructions at work.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "仕事のメモ",
+      "canDo": "Can read a simple, handwritten note at work and understand the instructions.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "スマホの充電器、ありますか？",
+      "canDo": "Can ask someone to lend you something at work.",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "チェックリスト",
+      "canDo": "Can look at a list of equipment and confirm if you have all the items.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "V-てください / V-て / V-てくれる？",
+      "example": "ちょっと、手伝ってください。 / 窓、閉めてくれる？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nですね (Confirmation)",
+      "example": "B：はい、30ですね。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "N、貸してください / N、借りてもいいですか？ / N、いいですか？ / N、ありますか？",
+      "example": "ホチキス、貸してください。 / スマホの充電器、ありますか？",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "朝",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "昼",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "夜",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～時",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～分",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～半",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～枚",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

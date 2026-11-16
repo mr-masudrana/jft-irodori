@@ -1,0 +1,85 @@
+{
+  "id": "starter-l15",
+  "lessonNumber": 15,
+  "title": "I need some batteries.",
+  "titleBn": "আমার কিছু ব্যাটারি দরকার।",
+  "topic": "At Stores",
+  "activities": [
+    {
+      "no": 1,
+      "title": "どこで買えますか？",
+      "canDo": "Can ask someone where to buy something and understand the answer.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "フロアガイド",
+      "canDo": "Can look at the floor guide for a store and find where to go for the item you want.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "カメラは何階ですか？",
+      "canDo": "Can ask staff in a shopping center, etc. where to go for a certain item, and understand the answer.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "わあ、かっこいいですね",
+      "canDo": "Can exchange simple comments about products with a friend while shopping.",
+      "dialogues": []
+    },
+    {
+      "no": 5,
+      "title": "ショッピングセンターの表示",
+      "canDo": "Can understand the meaning of common signs in a department store or a shopping center.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "Nがほしいんですが",
+      "example": "電池がほしいんですが、どこで買えますか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "ナA-ですね / イA-いですね / ナA！ / イA-い！",
+      "example": "このコート、おしゃれですね。 / このバッグ、かわいい！",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "入口",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "出口",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～階",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "押す",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "引く",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "安い",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

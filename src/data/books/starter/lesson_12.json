@@ -1,0 +1,94 @@
+{
+  "id": "starter-l12",
+  "lessonNumber": 12,
+  "title": "Do you want to go for a drink together?",
+  "titleBn": "একসাথে পান করতে যাবে?",
+  "topic": "What I Like to Do",
+  "activities": [
+    {
+      "no": 1,
+      "title": "イベントの案内",
+      "canDo": "Can read an event notice and find the important information, such as the date, time, and place.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "来週、夏祭りがありますね",
+      "canDo": "Can ask and answer questions about whether you are going to an event, etc.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "いっしょに行きましょう",
+      "canDo": "Can say when you are available, when you are inviting someone to something, or being invited.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "誘いの返事",
+      "canDo": "Can write a reply to your friend when they send you a message with an invitation.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "【date and time】に【place】で【event】があります",
+      "example": "日曜日に、さくら公園でタイフェスティバルがありますね。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "Nに行きます",
+      "example": "明日の忘年会に行きますか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "V-ませんか？",
+      "example": "いっしょに行きませんか？",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "V-ましょう",
+      "example": "また今度行きましょう。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "V-に行きます",
+      "example": "みんなで、いっしょに焼肉を食べに行きませんか？",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "～年",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～月",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～日",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "今日",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "今週",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "今度",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

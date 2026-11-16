@@ -1,0 +1,94 @@
+{
+  "id": "starter-l9",
+  "lessonNumber": 9,
+  "title": "Lunch is from noon to 1 o'clock.",
+  "titleBn": "দুপুরের খাবারের বিরতি ১২টা থেকে ১টা।",
+  "topic": "Daily Life",
+  "activities": [
+    {
+      "no": 1,
+      "title": "何時に起きますか？",
+      "canDo": "Can ask and answer questions about when you get up and when you sleep.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "1日のスケジュールを説明します",
+      "canDo": "Can listen to and understand a simple explanation of a daily schedule at work.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "スケジュールボード",
+      "canDo": "Can look at a whiteboard at work and mostly understand other people's schedules.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "私は日曜日がいいです",
+      "canDo": "Can ask and answer questions about when you are available to decide on a schedule.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "【time】にV-ます / 【time】ごろV-ます",
+      "example": "5時に起きます。 / 11時ごろ寝ます。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【time】から【time】まで",
+      "example": "12時から1時まで、昼休みです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【date and time】がいいです",
+      "example": "私は、土曜日がいいです。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "月",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "火",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "水",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "木",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "金",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "土",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "日",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "～曜日",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}

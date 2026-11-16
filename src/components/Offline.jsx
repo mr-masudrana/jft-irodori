@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Download, CheckCircle2 } from 'lucide-react';
-import booksData from '../data/books_data.json';
+import booksData from '../data/books';
 import mock from '../data/mock_exam.json';
 
 const urls = [...new Set([
-  ...booksData.flatMap((b) => b.lessons.flatMap((l) => [...l.vocabulary.map((v) => v.audio), ...l.dialogues.map((d) => d.audio)])),
+  ...booksData.flatMap((b) => b.lessons.flatMap((l) => [
+    ...l.vocabulary.map((v) => v.audio),
+    ...l.dialogues.map((d) => d.audio),
+    ...l.activities.flatMap((a) => a.dialogues.map((d) => d.audio)),
+  ])),
   ...mock.map((q) => q.audio),
 ].filter(Boolean))];
 

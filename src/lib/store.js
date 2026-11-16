@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import booksData from '../data/books_data.json';
+import booksData from '../data/books';
 
 const KEY = 'jft_irodori_v4';
 const DEF = { canDos: {}, srs: {}, history: [], stats: { xp: 0, streak: 0, last: 0, days: {} } };

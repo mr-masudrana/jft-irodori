@@ -1,0 +1,99 @@
+{
+  "id": "starter-l18",
+  "lessonNumber": 18,
+  "title": "I want to go to a hot spring.",
+  "titleBn": "আমি একটি গরম পানির ঝরনায় (অনসেন) যেতে চাই।",
+  "topic": "Holidays",
+  "activities": [
+    {
+      "no": 1,
+      "title": "ゴールデンウィークの予定は？",
+      "canDo": "Can ask and answer questions about what you want to do on your days off.",
+      "dialogues": []
+    },
+    {
+      "no": 2,
+      "title": "日本で何がしたい？",
+      "canDo": "Can give a simple answer when asked about what you want to do in Japan.",
+      "dialogues": []
+    },
+    {
+      "no": 3,
+      "title": "船に乗りました",
+      "canDo": "Can write a simple post for social media, etc., about what you did on your day off.",
+      "dialogues": []
+    },
+    {
+      "no": 4,
+      "title": "はじめて露天風呂に入りました",
+      "canDo": "Can talk in simple terms about what you did on a trip and your impressions.",
+      "dialogues": []
+    }
+  ],
+  "dialogues": [],
+  "vocabulary": [],
+  "grammar": [
+    {
+      "pattern": "V-たいです",
+      "example": "炊飯器が買いたいです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "どこかV-ます",
+      "example": "どこか旅行したいです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "S1。あと、S2。",
+      "example": "雪が見たいです。あと、温泉に入りたいです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "【place】へ行きます",
+      "example": "京都へ行きたいです。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "S1。それから、S2。",
+      "example": "露天風呂に入りました。それから、温泉の近くで、鶏の天ぷらを食べました。",
+      "meaningBn": ""
+    },
+    {
+      "pattern": "S1。それに、S2。 / S1。でも、S2。",
+      "example": "気持ちよかったです。それに、景色もきれいでした。",
+      "meaningBn": ""
+    }
+  ],
+  "kanji": [
+    {
+      "char": "温泉",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "予定",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "来週",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "会います",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "入ります",
+      "reading": "",
+      "bn": ""
+    },
+    {
+      "char": "旅行します",
+      "reading": "",
+      "bn": ""
+    }
+  ]
+}
