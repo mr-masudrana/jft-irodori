@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import booksData from '../data/books';
 
 const KEY = 'jft_irodori_v4';
-const DEF = { canDos: {}, srs: {}, history: [], stats: { xp: 0, streak: 0, last: 0, days: {} } };
+const DEF = { canDos: {}, srs: {}, history: [], resume: null, stats: { xp: 0, streak: 0, last: 0, days: {} } };
+export const DAILY_GOAL = 20; // দিনে ২০ XP-র লক্ষ্য
 export const dayNum = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 864e5);
 const shape = (s) => ({ ...DEF, ...s, stats: { ...DEF.stats, ...(s?.stats || {}) } });
 
@@ -28,6 +29,8 @@ export const addXp = (s, xp) => {
   return { ...s, stats: st };
 };
 export const liveStreak = (st) => (st.last >= dayNum() - 1 ? st.streak : 0);
+export const todayXp = (st) => st.days[dayNum()] || 0;
+export const setResume = (s, bookId, lessonId) => ({ ...s, resume: { bookId, lessonId } });
 const GAP = [0, 1, 2, 4, 8, 16];
 export const rateCard = (s, id, ok) => {
   const box = ok ? Math.min((s.srs[id]?.box || 0) + 1, 5) : 0;
@@ -35,6 +38,8 @@ export const rateCard = (s, id, ok) => {
 };
 export const cards = booksData.flatMap((b) => b.lessons.flatMap((l) =>
   l.vocabulary.map((v, i) => ({ ...v, id: `${l.id}:${i}`, lessonId: l.id, lessonNo: l.lessonNumber, book: b.title }))));
+// 'মনে আছে' চাপলে কার্ডটি কত দিন পরে ফিরবে (বাটনে দেখানোর জন্য)
+export const nextGapDays = (s, id) => GAP[Math.min((s.srs[id]?.box || 0) + 1, 5)];
 export const isDue = (s, c) => (s.srs[c.id]?.due ?? 0) <= dayNum();
 export const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
 

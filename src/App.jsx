@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import {
   Home, BookOpen, Repeat, ClipboardCheck, BarChart3, ArrowLeft, Flame, Star, ChevronRight,
-  CheckCircle2, Circle, Eye, EyeOff, Brain, PenLine, Sun, Moon, Search, Sparkles, Trophy, X,
+  CheckCircle2, Circle, Eye, EyeOff, Brain, PenLine, Sun, Moon, Search, Sparkles, Trophy, X, Play, Languages, LayoutGrid, Palette, Info,
 } from 'lucide-react';
 import booksData from './data/books';
 import AudioPlayer from './components/AudioPlayer';
 import MockTest from './components/MockTest';
 import Offline from './components/Offline';
+import VocabTab from './components/VocabTab';
 import { Review, Quiz } from './components/Review';
-import { useStore, addXp, liveStreak, cards, isDue, dayNum } from './lib/store';
+import { useStore, addXp, liveStreak, cards, isDue, dayNum, DAILY_GOAL, todayXp, setResume } from './lib/store';
 
 const TABS = [
   ['home', Home, 'হোম'],
-  ['books', BookOpen, 'বই'],
+  ['vocab', Languages, 'ভোকাবুলারি'],
   ['review', Repeat, 'রিভিউ'],
-  ['exam', ClipboardCheck, 'মক টেস্ট'],
-  ['progress', BarChart3, 'প্রগ্রেস'],
+  ['more', LayoutGrid, 'মোর'],
 ];
 
-const TAB_IDS = ['home', 'books', 'review', 'exam', 'progress'];
+// 'study' = হোমের ভোকাবুলারি/গ্রামার/কান্জি → লেসন তালিকা; 'books' = লেসন পেজ; 'exam'/'progress' = মোর-এর ভেতরের পেজ
+const TAB_IDS = ['home', 'vocab', 'review', 'more', 'study', 'books', 'exam', 'progress'];
+const ROOT_TABS = ['home', 'vocab', 'review', 'more'];
+const NAV_OF = { study: 'home', books: 'home', exam: 'more', progress: 'more' };
+const CATS = {
+  vocab: { label: 'ভোকাবুলারি', glyph: '語' },
+  grammar: { label: 'গ্রামার', glyph: '文' },
+  kanji: { label: 'কান্জি', glyph: '漢' },
+};
 const SPEAKER_STYLES = [
   'bg-indigo-500/10 text-indigo-600 dark:text-indigo-300',
   'bg-rose-500/10 text-rose-600 dark:text-rose-300',
@@ -31,7 +39,8 @@ const BN_DAYS = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'ব�
 function parseHash() {
   const p = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const tab = TAB_IDS.includes(p[0]) ? p[0] : 'home';
-  const r = { tab, bookId: null, lessonId: null, sec: null, mode: null };
+  const r = { tab, bookId: null, lessonId: null, sec: null, mode: null, cat: null };
+  if (tab === 'study') r.cat = CATS[p[1]] ? p[1] : 'vocab';
   if (tab === 'books') {
     r.bookId = p[1] || null;
     r.lessonId = r.bookId ? p[2] || null : null;
@@ -43,13 +52,37 @@ function parseHash() {
   return r;
 }
 
-const toHash = ({ tab, bookId, lessonId, sec, mode }) => {
+const toHash = ({ tab, bookId, lessonId, sec, mode, cat }) => {
   const seg = tab === 'books'
     ? [bookId, bookId && lessonId, bookId && lessonId && (mode || (sec === null ? null : typeof sec === 'number' ? `a${sec}` : sec))]
-    : [];
+    : tab === 'study' ? [cat] : [];
   return '#/' + [tab, ...seg].filter((x) => x !== null && x !== undefined && x !== false && x !== '').map(encodeURIComponent).join('/');
 };
 const depth = () => window.history.state?.n || 0;
+const greet = () => { const h = new Date().getHours(); return h < 11 ? 'おはよう' : h < 18 ? 'こんにちは' : 'こんばんは'; };
+
+// দৈনিক XP লক্ষ্যের রিং
+function Ring({ value, goal, size = 70 }) {
+  const r = 29, c = 2 * Math.PI * r, p = Math.min(1, value / goal);
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`আজকের লক্ষ্য ${value}/${goal} XP`}>
+      <svg viewBox="0 0 70 70" width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx="35" cy="35" r={r} fill="none" stroke="rgb(255 255 255 / 0.2)" strokeWidth="6" />
+        <circle
+          cx="35" cy="35" r={r} fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - p)}
+          style={{ transition: 'stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1)' }}
+        />
+      </svg>
+      <div className="absolute inset-0 grid place-items-center text-center leading-none">
+        <div>
+          <b className="text-base tabular-nums">{Math.min(value, goal)}</b>
+          <span className="block text-[9.5px] opacity-80 mt-0.5">/{goal} XP</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [state, update] = useStore();
@@ -60,6 +93,7 @@ export default function App() {
   const [mode, setMode] = useState(init.mode);
   const [hide, setHide] = useState(false);
   const [sec, setSec] = useState(init.sec);
+  const [cat, setCat] = useState(init.cat);
   const [q, setQ] = useState('');
   const [dark, setDark] = useState(() => {
     const saved = localStorage.getItem('jft-theme');
@@ -69,6 +103,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0b0f1f' : '#f3f5fa');
     localStorage.setItem('jft-theme', dark ? 'dark' : 'light');
   }, [dark]);
 
@@ -79,19 +114,19 @@ export default function App() {
 
   const first = React.useRef(true);
   useEffect(() => {
-    const h = toHash({ tab, bookId, lessonId, sec, mode });
+    const h = toHash({ tab, bookId, lessonId, sec, mode, cat });
     if (first.current) {
       first.current = false;
       if (location.hash !== h) window.history.replaceState({ n: depth() }, '', h);
     } else if (location.hash !== h) {
       window.history.pushState({ n: depth() + 1 }, '', h);
     }
-  }, [tab, bookId, lessonId, sec, mode]);
+  }, [tab, bookId, lessonId, sec, mode, cat]);
 
   useEffect(() => {
     const onPop = () => {
       const r = parseHash();
-      setTab(r.tab); setBookId(r.bookId); setLessonId(r.lessonId); setSec(r.sec); setMode(r.mode);
+      setTab(r.tab); setBookId(r.bookId); setLessonId(r.lessonId); setSec(r.sec); setMode(r.mode); setCat(r.cat);
       window.scrollTo({ top: 0 });
     };
     window.addEventListener('popstate', onPop);
@@ -101,8 +136,14 @@ export default function App() {
   const st = state.stats;
   const due = cards.filter((c) => isDue(state, c)).length;
   const top = () => window.scrollTo({ top: 0 });
-  const go = (t) => { setTab(t); setBookId(null); setLessonId(null); setSec(null); setMode(null); top(); };
-  const openBook = (id) => { setTab('books'); setBookId(id); setLessonId(null); setSec(null); setMode(null); top(); };
+  const go = (t) => { setTab(t); setBookId(null); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
+  const openStudy = (c) => { setTab('study'); setCat(c); setBookId(null); setLessonId(null); setSec(null); setMode(null); top(); };
+  const openBook = (id) => { setTab('books'); setBookId(id); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
+  const openLesson = (bId, lId) => {
+    setTab('books'); setBookId(bId); setLessonId(lId); setSec(null); setMode(null); setCat(null); setHide(false);
+    update((s) => setResume(s, bId, lId));
+    top();
+  };
   const back = () => {
     if (depth() > 0) { window.history.back(); return; }
     if (mode) setMode(null);
@@ -122,6 +163,9 @@ export default function App() {
   const lessonDone = (l) => l.activities.filter((_, i) => state.canDos[`${l.id}-${i}`]).length;
 
   const title = tab === 'home' ? 'Irodori JFT-Basic'
+    : tab === 'vocab' ? 'ভোকাবুলারি'
+    : tab === 'more' ? 'মোর'
+    : tab === 'study' ? `${CATS[cat]?.label || 'লেসন'} • লেসন বেছে নিন`
     : tab === 'review' ? 'আজকের রিভিউ'
     : tab === 'exam' ? 'JFT Mock Exam'
     : tab === 'progress' ? 'প্রগ্রেস ও স্ট্যাটস'
@@ -130,7 +174,7 @@ export default function App() {
     : lesson ? (
       sec === null ? `Lesson ${lesson.lessonNumber}`
       : typeof sec === 'number' ? `L${lesson.lessonNumber} • অ্যাক্টিভিটি ${sec + 1}`
-      : { vocab: 'শব্দতালিকা', grammar: 'গ্রামার নোট', kanji: 'কাঞ্জি', dialogues: 'কথোপকথন' }[sec]
+      : { vocab: 'ভোকাবুলারি', grammar: 'গ্রামার', kanji: 'কান্জি', dialogues: 'কথোপকথন' }[sec]
     )
     : book ? book.title : 'Irodori বইসমূহ';
 
@@ -141,7 +185,7 @@ export default function App() {
         return (
           <div key={b.id} onClick={() => openBook(b.id)} className="card card-tap">
             <div className="flex items-center gap-3.5">
-              <div className={`w-13 h-13 w-12 h-12 rounded-2xl text-white grid place-items-center font-extrabold text-base shadow-sm shrink-0 ${b.iconBg}`}>
+              <div className={`w-12 h-12 rounded-2xl text-white grid place-items-center font-extrabold text-base shadow-sm shrink-0 ${b.iconBg}`}>
                 {b.id === 'starter' ? 'A1' : 'A2'}
               </div>
               <div className="flex-1 min-w-0">
@@ -200,7 +244,7 @@ export default function App() {
 
   const HideBtn = () => (
     <div className="flex justify-end">
-      <button onClick={() => setHide(!hide)} className="btn btn-g !py-2 !px-3.5 text-xs">
+      <button onClick={() => setHide(!hide)} className="btn btn-g !py-2 !min-h-[40px] !px-3.5 text-xs">
         {hide ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
         {hide ? 'স্ক্রিপ্ট দেখুন' : 'স্ক্রিপ্ট লুকান'}
       </button>
@@ -219,9 +263,9 @@ export default function App() {
     const totalAct = lesson.activities.length;
     const pct = totalAct ? Math.round((doneAct / totalAct) * 100) : 0;
     const rows = [
-      ['vocab', '📚', 'শব্দতালিকা', lesson.vocabulary.length],
-      ['grammar', '🧩', 'গ্রামার নোট', lesson.grammar.length],
-      ['kanji', '🈶', 'কাঞ্জি', lesson.kanji.length],
+      ['vocab', '📚', 'ভোকাবুলারি', lesson.vocabulary.length],
+      ['grammar', '🧩', 'গ্রামার', lesson.grammar.length],
+      ['kanji', '🈶', 'কান্জি', lesson.kanji.length],
     ];
     if (lesson.dialogues.length) rows.unshift(['dialogues', '🎧', 'কথোপকথন', lesson.dialogues.length]);
 
@@ -261,7 +305,7 @@ export default function App() {
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase t-mu px-1">স্টাডি ম্যাটেরিয়াল</h3>
+          <h3 className="text-[13px] font-semibold t-mu px-1">স্টাডি ম্যাটেরিয়াল</h3>
           <div className="grid grid-cols-2 gap-2.5">
             {rows.map(([id, e, label, n]) => (
               <div key={id} onClick={() => { setSec(id); top(); }} className="card card-tap flex items-center gap-3 !p-3.5">
@@ -276,16 +320,16 @@ export default function App() {
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase t-mu px-1">টপিক ও Can-Do অ্যাক্টিভিটি</h3>
+          <h3 className="text-[13px] font-semibold t-mu px-1">টপিক ও Can-Do অ্যাক্টিভিটি</h3>
           {lesson.activities.map((a, i) => {
             const on = !!state.canDos[`${lesson.id}-${i}`];
             return (
               <div key={i} onClick={() => { setSec(i); top(); }} className="card card-tap flex items-center gap-3.5">
-                <div className={`w-10 h-10 rounded-xl grid place-items-center font-bold shrink-0 ${
-                  on ? 'bg-emerald-500/15 t-ok' : 'chip-b'
-                }`}>
-                  {on ? <CheckCircle2 className="w-5 h-5" /> : a.no}
-                </div>
+                {on ? (
+                  <div className="hanko pop w-10 h-10 text-base" aria-label="সম্পন্ন">済</div>
+                ) : (
+                  <div className="w-10 h-10 rounded-xl grid place-items-center font-bold shrink-0 chip-b">{a.no}</div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm jp">{a.title}</p>
                   {a.canDo && <p className="t-mu text-xs line-clamp-2 mt-0.5">{a.canDo}</p>}
@@ -310,19 +354,21 @@ export default function App() {
         <div className="space-y-3.5 view">
           <div
             onClick={() => toggle(k)}
-            className={`card cursor-pointer select-none transition border-2 ${
-              on ? 'border-emerald-500/40 bg-emerald-500/5' : ''
-            }`}
+            className="card cursor-pointer select-none border-2"
+            style={on ? { borderColor: 'color-mix(in srgb, var(--shu) 45%, var(--ln))' } : undefined}
+            role="button" tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(k); } }}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <span className="chip">অ্যাক্টিভিটি {a.no}</span>
                 <p className="font-bold text-base jp pt-1">{a.title}</p>
               </div>
-              {on ? <CheckCircle2 className="w-6 h-6 t-ok shrink-0" /> : <Circle className="w-6 h-6 t-mu shrink-0" />}
+              {on ? <div className="hanko pop w-11 h-11 text-lg" aria-label="সম্পন্ন">済</div> : <Circle className="w-7 h-7 t-mu shrink-0" />}
             </div>
-            <p className={`text-xs mt-2.5 leading-relaxed ${on ? 't-ok font-medium' : 't-mu'}`}>
-              {a.canDo || 'ট্যাপ করে সম্পন্ন হিসেবে চিহ্নিত করুন'}
+            {a.canDo && <p className="text-[13px] mt-2.5 leading-relaxed t-mu">{a.canDo}</p>}
+            <p className={`text-[11.5px] mt-2 font-semibold ${on ? 't-shu' : 't-br'}`}>
+              {on ? 'সম্পন্ন — আবার ট্যাপ করলে চিহ্ন সরে যাবে' : 'শেষ হলে এখানে ট্যাপ করে সম্পন্ন করুন'}
             </p>
           </div>
           {a.dialogues.length ? (<>{HideBtn()}{Dialogues(a.dialogues)}</>) : Empty()}
@@ -369,7 +415,7 @@ export default function App() {
                 <div key={i} className="card flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     {w.kana && w.kana !== w.jp && <p className="t-br text-xs font-semibold jp">{w.kana}</p>}
-                    <p className="text-lg font-extrabold jp mt-0.5">{w.jp}</p>
+                    <p className="text-xl jp-display mt-0.5">{w.jp}</p>
                     <p className="t-mu text-xs mt-0.5">{w.bn}</p>
                   </div>
                   <AudioPlayer key={`${lesson.id}-v-${w.jp}-${i}`} src={w.audio} text={w.kana || w.jp} compact />
@@ -393,7 +439,7 @@ export default function App() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {list.map((k, i) => (
               <div key={i} className="card text-center py-5 space-y-1.5">
-                <p className="text-3xl font-extrabold jp">{k.char}</p>
+                <p className="text-4xl jp-display">{k.char}</p>
                 {k.reading && <p className="t-br text-xs font-semibold jp">{k.reading}</p>}
                 <p className="t-mu text-xs">{k.bn || '—'}</p>
               </div>
@@ -403,6 +449,105 @@ export default function App() {
       </div>
     );
   };
+
+  // হোম → ভোকাবুলারি/গ্রামার/কান্জি → লেসন তালিকা
+  const StudyList = () => {
+    const c = CATS[cat];
+    if (!c) return <div className="view">{Empty()}</div>;
+    const total = booksData.reduce((n, b) => n + b.lessons.reduce((m, l) => m + (l[cat] || []).length, 0), 0);
+    return (
+      <div className="space-y-4 view">
+        <div className="card flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center jp-display text-2xl shrink-0">{c.glyph}</div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold">{c.label}</p>
+            <p className="t-mu text-xs">সব লেসন মিলিয়ে {total}টি • একটি লেসন বেছে নিন</p>
+          </div>
+        </div>
+        {booksData.map((b) => (
+          <div key={b.id} className="space-y-2.5">
+            <h3 className="text-[13px] font-semibold t-mu px-1 jp">{b.title} • {b.jpTitle}</h3>
+            {b.lessons.map((l) => {
+              const n = (l[cat] || []).length;
+              return (
+                <div
+                  key={l.id}
+                  onClick={() => openLesson(b.id, l.id)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') openLesson(b.id, l.id); }}
+                  role="button" tabIndex={0}
+                  className="card card-tap flex items-center gap-3.5"
+                >
+                  <div className="w-11 h-11 rounded-2xl grid place-items-center font-extrabold text-sm shrink-0 chip-b">{l.lessonNumber}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm truncate">{l.title}</p>
+                    <p className="t-mu text-xs truncate mt-0.5">{l.titleBn}</p>
+                  </div>
+                  <span className={`chip tabular-nums ${n ? '' : 'opacity-50'}`}>{n}টি</span>
+                  <ChevronRight className="w-4 h-4 t-mu shrink-0" />
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const More = () => (
+    <div className="space-y-4 view">
+      <div className="space-y-2.5">
+        <h3 className="text-[13px] font-semibold t-mu px-1">অনুশীলন ও অগ্রগতি</h3>
+        {[
+          ['exam', ClipboardCheck, 'JFT-Basic মক টেস্ট', '২৫০ নম্বর • পাস মার্ক ২০০ • টাইমারসহ'],
+          ['progress', BarChart3, 'প্রগ্রেস ও স্ট্যাটস', 'স্ট্রিক, XP, সাপ্তাহিক চার্ট ও মক টেস্টের ইতিহাস'],
+        ].map(([id, I, label, desc]) => (
+          <div
+            key={id} onClick={() => go(id)} role="button" tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') go(id); }}
+            className="card card-tap flex items-center gap-3.5"
+          >
+            <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><I className="w-6 h-6" /></div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-[15px]">{label}</p>
+              <p className="t-mu text-xs mt-0.5">{desc}</p>
+            </div>
+            <ChevronRight className="w-5 h-5 t-mu shrink-0" />
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-2.5">
+        <h3 className="text-[13px] font-semibold t-mu px-1">সেটিংস</h3>
+        <div className="card flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><Palette className="w-6 h-6" /></div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-[15px]">ডার্ক মোড</p>
+            <p className="t-mu text-xs mt-0.5">রাতে পড়ার জন্য চোখ-বান্ধব থিম</p>
+          </div>
+          <button
+            role="switch" aria-checked={dark} aria-label="ডার্ক মোড"
+            onClick={() => setDark((d) => !d)}
+            className="relative w-12 h-7 rounded-full shrink-0 transition-colors"
+            style={{ background: dark ? 'var(--br)' : 'var(--ln)' }}
+          >
+            <span
+              className="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform"
+              style={{ transform: dark ? 'translateX(20px)' : 'none' }}
+            />
+          </button>
+        </div>
+        <Offline />
+      </div>
+
+      <div className="card flex items-center gap-3.5">
+        <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><Info className="w-6 h-6" /></div>
+        <div className="min-w-0">
+          <p className="font-bold text-[15px]">Irodori JFT-Basic</p>
+          <p className="t-mu text-xs mt-0.5">সংস্করণ 4.2 • ডেটা শুধু আপনার ডিভাইসে সেভ থাকে</p>
+        </div>
+      </div>
+    </div>
+  );
 
   const Progress = () => {
     const mastered = cards.filter((c) => (state.srs[c.id]?.box || 0) >= 3).length;
@@ -442,14 +587,14 @@ export default function App() {
             <span className="chip"><Sparkles className="w-3 h-3" /> সাপ্তাহিক</span>
           </div>
           <div className="grid grid-cols-7 gap-2 items-end h-32 pt-4">
-            {week.map((w) => (
+            {week.map((w, wi) => (
               <div key={w.d} className="flex flex-col items-center gap-1.5 h-full justify-end">
                 <span className="text-[10px] font-bold t-mu tabular-nums">{w.xp || ''}</span>
                 <div
                   className="w-full max-w-[28px] rounded-t-xl rounded-b-md transition-all"
                   style={{
                     height: `${Math.max(8, (w.xp / mx) * 100)}%`,
-                    background: w.xp ? 'linear-gradient(180deg, var(--br2), var(--br))' : 'var(--sf2)',
+                    background: w.xp ? (wi === 6 ? 'var(--shu)' : 'var(--br)') : 'var(--sf2)',
                   }}
                 />
                 <span className="text-[10.5px] font-semibold t-mu">{w.label}</span>
@@ -458,19 +603,19 @@ export default function App() {
           </div>
         </div>
 
-        <Offline />
-
         <div className="space-y-2.5">
-          <h3 className="text-xs font-bold uppercase t-mu px-1">মক টেস্ট ইতিহাস</h3>
+          <h3 className="text-[13px] font-semibold t-mu px-1">মক টেস্ট ইতিহাস</h3>
           {!state.history.length && (
             <div className="card text-center text-sm t-mu py-6">এখনো কোনো মক টেস্ট দেওয়া হয়নি।</div>
           )}
           {[...state.history].reverse().slice(0, 10).map((h, i) => (
             <div key={i} className="card flex justify-between items-center !py-3.5">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl grid place-items-center ${h.score >= 200 ? 'bg-emerald-500/15 t-ok' : 'bg-rose-500/15 t-bad'}`}>
-                  <Trophy className="w-5 h-5" />
-                </div>
+                {h.score >= 200 ? (
+                  <div className="hanko w-11 h-11 text-[12px]" aria-label="পাস">合格</div>
+                ) : (
+                  <div className="w-11 h-11 rounded-xl grid place-items-center bg-rose-500/15 t-bad"><Trophy className="w-5 h-5" /></div>
+                )}
                 <div>
                   <p className="font-extrabold tabular-nums">
                     {h.score}<span className="t-mu text-xs font-normal"> / 250</span>
@@ -488,42 +633,65 @@ export default function App() {
     );
   };
 
+  const xpToday = todayXp(st);
+  const resumeBook = booksData.find((b) => b.id === state.resume?.bookId);
+  const resumeLesson = resumeBook?.lessons.find((l) => l.id === state.resume?.lessonId);
+  const resumePct = resumeLesson && resumeLesson.activities.length
+    ? Math.round((lessonDone(resumeLesson) / resumeLesson.activities.length) * 100) : 0;
+
   let body;
   if (tab === 'home') {
     body = (
       <div className="space-y-5 view">
-        <div className="hero space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium opacity-90 jp">こんにちは 👋 • JFT-Basic প্রস্তুতি</p>
-              <h2 className="text-2xl font-extrabold mt-0.5">আজকের পড়াশোনা</h2>
+        <div className="hero space-y-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[13px] opacity-80 jp">{greet()}</p>
+              <h2 className="text-[26px] leading-tight font-extrabold mt-0.5">আজকের পড়াশোনা</h2>
+              <p className="text-[13px] opacity-85 mt-1.5 leading-snug">
+                {xpToday >= DAILY_GOAL ? 'আজকের লক্ষ্য পূরণ হয়েছে। চমৎকার!' : `আজকের লক্ষ্য পূরণে আর ${DAILY_GOAL - xpToday} XP বাকি`}
+              </p>
             </div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-sm">
-              {due > 0 ? `${due}টি রিভিউ` : 'সব আপডেটেড'}
-            </span>
+            <Ring value={xpToday} goal={DAILY_GOAL} />
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5 text-center">
+          <div className="grid grid-cols-3 gap-2 text-center">
             {[
-              [<Flame key="f" className="w-4 h-4 mx-auto text-amber-300" />, liveStreak(st), 'স্ট্রিক'],
+              [<Flame key="f" className="w-4 h-4 mx-auto text-amber-300" />, liveStreak(st), 'দিনের স্ট্রিক'],
               [<Star key="s" className="w-4 h-4 mx-auto text-yellow-200" />, st.xp, 'মোট XP'],
               [<Repeat key="r" className="w-4 h-4 mx-auto text-indigo-100" />, due, 'রিভিউ বাকি'],
             ].map(([ic, v, l]) => (
-              <div key={l} className="rounded-2xl py-3 px-2 bg-white/15 backdrop-blur-sm border border-white/15">
+              <div key={l} className="rounded-2xl py-2.5 px-1.5 bg-white/12 border border-white/15" style={{ background: 'rgb(255 255 255 / 0.12)' }}>
                 {ic}
-                <b className="text-xl block mt-1 tabular-nums">{v}</b>
-                <span className="text-[11px] opacity-90">{l}</span>
+                <b className="text-lg block mt-0.5 tabular-nums leading-tight">{v}</b>
+                <span className="text-[11px] opacity-85">{l}</span>
               </div>
             ))}
           </div>
 
           <button
             onClick={() => go(due > 0 ? 'review' : 'books')}
-            className="btn w-full bg-white text-indigo-700 font-bold shadow-lg"
+            className="btn w-full font-bold"
+            style={{ background: '#fff', color: '#17236b' }}
           >
-            {due > 0 ? '▶ আজকের রিভিউ শুরু করুন' : '📚 বই থেকে নতুন লেসন পড়ুন'}
+            {due > 0 ? <><Repeat className="w-4 h-4" /> আজকের {due}টি রিভিউ শুরু করুন</> : <><BookOpen className="w-4 h-4" /> নতুন লেসন পড়ুন</>}
           </button>
         </div>
+
+        {resumeLesson && (
+          <div onClick={() => openLesson(resumeBook.id, resumeLesson.id)} className="card card-tap flex items-center gap-3.5" role="button" tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') openLesson(resumeBook.id, resumeLesson.id); }}>
+            <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0">
+              <Play className="w-5 h-5 fill-current ml-0.5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="t-mu text-xs">যেখানে থেমেছিলেন</p>
+              <p className="font-bold text-[15px] truncate">Lesson {resumeLesson.lessonNumber} • {resumeLesson.titleBn || resumeLesson.title}</p>
+              <div className="bar mt-2"><i style={{ width: `${resumePct}%` }} /></div>
+            </div>
+            <ChevronRight className="w-5 h-5 t-mu shrink-0" />
+          </div>
+        )}
 
         <div onClick={() => go('exam')} className="card card-tap flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl btn-p grid place-items-center shrink-0">
@@ -541,10 +709,21 @@ export default function App() {
 
         <div className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold uppercase t-mu">Irodori পাঠ্যবই</h3>
-            <button onClick={() => go('books')} className="text-xs font-bold t-br">সব দেখুন</button>
+            <h3 className="text-[13px] font-semibold t-mu">Irodori পাঠ্যবই</h3>
+            <button onClick={() => go('books')} className="text-xs font-bold t-br py-1">সব লেসন</button>
           </div>
-          {BookList()}
+          <div className="grid grid-cols-3 gap-2.5">
+            {Object.entries(CATS).map(([id, c]) => {
+              const n = booksData.reduce((t, b) => t + b.lessons.reduce((m, l) => m + (l[id] || []).length, 0), 0);
+              return (
+                <button key={id} onClick={() => openStudy(id)} className="card card-tap !p-3.5 text-center space-y-2">
+                  <div className="w-12 h-12 mx-auto rounded-2xl chip-b grid place-items-center jp-display text-2xl">{c.glyph}</div>
+                  <p className="font-bold text-sm">{c.label}</p>
+                  <p className="t-mu text-[11px] tabular-nums -mt-1">{n}টি</p>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -569,19 +748,19 @@ export default function App() {
           return (
             <React.Fragment key={l.id}>
               {newTopic && (
-                <h3 className="text-xs font-bold uppercase t-br px-1 pt-2 flex items-center gap-1.5">
+                <h3 className="text-xs font-bold t-br px-1 pt-2 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-current" /> {l.topic}
                 </h3>
               )}
               <div
-                onClick={() => { setLessonId(l.id); setSec(null); setHide(false); top(); }}
+                onClick={() => openLesson(book.id, l.id)}
                 className="card card-tap flex items-center gap-3.5"
               >
-                <div className={`w-11 h-11 rounded-2xl grid place-items-center font-extrabold text-sm shrink-0 ${
-                  all ? 'bg-emerald-500/15 t-ok' : 'chip-b'
-                }`}>
-                  {all ? <CheckCircle2 className="w-5 h-5" /> : l.lessonNumber}
-                </div>
+                {all ? (
+                  <div className="hanko pop w-11 h-11 text-lg" aria-label="সম্পন্ন">済</div>
+                ) : (
+                  <div className="w-11 h-11 rounded-2xl grid place-items-center font-extrabold text-sm shrink-0 chip-b">{l.lessonNumber}</div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm truncate">{l.title}</p>
                   <p className="t-mu text-xs truncate mt-0.5">{l.titleBn}</p>
@@ -601,8 +780,14 @@ export default function App() {
     ) : (
       SectionView()
     );
+  } else if (tab === 'study') {
+    body = StudyList();
+  } else if (tab === 'vocab') {
+    body = <VocabTab />;
+  } else if (tab === 'more') {
+    body = More();
   } else if (tab === 'review') {
-    body = <Review key="due" state={state} update={update} />;
+    body = <Review key="due" state={state} update={update} onDone={() => go('books')} />;
   } else if (tab === 'exam') {
     body = (
       <MockTest
@@ -625,22 +810,25 @@ export default function App() {
         }}
       >
         <div className="max-w-xl mx-auto px-4 h-14 flex items-center gap-2.5">
-          {(tab !== 'home' || bookId) && (
+          {(!ROOT_TABS.includes(tab) || bookId) ? (
             <button
               onClick={back}
-              aria-label="Back"
-              className="p-2 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition"
+              aria-label="পিছনে যান"
+              className="w-10 h-10 -ml-2 rounded-full grid place-items-center active:bg-black/5 dark:active:bg-white/10 transition"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
+          ) : (
+            <img src="/icon.svg" alt="" className="w-9 h-9 rounded-xl shadow-sm shrink-0" />
           )}
-          <img src="/icon.svg" alt="" className="w-8 h-8 rounded-xl shadow-sm shrink-0" />
-          <h1 className="text-sm font-extrabold flex-1 truncate">{title}</h1>
-          <span className="chip tabular-nums">🔥 {liveStreak(st)}</span>
+          <h1 className="text-[15px] font-extrabold flex-1 truncate">{title}</h1>
+          <span className="chip chip-shu tabular-nums" aria-label={`${liveStreak(st)} দিনের স্ট্রিক`}>
+            <Flame className="w-3.5 h-3.5" /> {liveStreak(st)}
+          </span>
           <button
             onClick={() => setDark((d) => !d)}
-            aria-label="Toggle theme"
-            className="w-8 h-8 rounded-full grid place-items-center btn-g !p-0"
+            aria-label="থিম বদলান"
+            className="w-10 h-10 rounded-full grid place-items-center btn-g !p-0"
           >
             {dark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 t-mu" />}
           </button>
@@ -651,9 +839,10 @@ export default function App() {
 
       <nav className="tabbar">
         {TABS.map(([id, I, label]) => (
-          <button key={id} onClick={() => go(id)} className={tab === id ? 'on' : ''}>
+          <button key={id} onClick={() => go(id)} className={(NAV_OF[tab] || tab) === id ? 'on' : ''} aria-current={(NAV_OF[tab] || tab) === id ? 'page' : undefined}>
             <I className="w-5 h-5" />
             <span>{label}</span>
+            {id === 'review' && due > 0 && <b className="tab-badge tabular-nums">{due > 99 ? '99+' : due}</b>}
           </button>
         ))}
       </nav>

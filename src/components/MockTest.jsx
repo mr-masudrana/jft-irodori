@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Clock, CheckCircle2, XCircle, RotateCcw, ChevronLeft, ChevronRight,
-  Award, Headphones, FileText,
+  Award, Headphones, FileText, Flag, ListChecks, Timer, Target,
 } from 'lucide-react';
 import questions from '../data/mock_exam.json';
 import AudioPlayer from './AudioPlayer';
@@ -15,6 +15,9 @@ export default function MockTest({ onSave, onExit }) {
   const [left, setLeft] = useState(MINUTES * 60);
   const [result, setResult] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all' | 'wrong' | 'correct'
+  const [started, setStarted] = useState(false);
+  const [flags, setFlags] = useState({});
+  const [confirm, setConfirm] = useState(false);
   const ans = useRef({});
   ans.current = answers;
 
@@ -33,17 +36,17 @@ export default function MockTest({ onSave, onExit }) {
   };
 
   useEffect(() => {
-    if (result) return;
+    if (result || !started) return;
     const t = setInterval(() => setLeft((l) => {
       if (l <= 1) { clearInterval(t); setTimeout(finish, 0); return 0; }
       return l - 1;
     }), 1000);
     return () => clearInterval(t);
-  }, [result]); // eslint-disable-line
+  }, [result, started]); // eslint-disable-line
 
   const submit = () => {
     const un = questions.length - Object.keys(answers).length;
-    if (un && !window.confirm(`${un}টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?`)) return;
+    if (un) { setConfirm(true); return; }
     finish();
   };
 
@@ -53,7 +56,44 @@ export default function MockTest({ onSave, onExit }) {
     setLeft(MINUTES * 60);
     setResult(null);
     setFilter('all');
+    setFlags({});
+    setConfirm(false);
+    setStarted(false);
   };
+
+  if (!started && !result) {
+    return (
+      <div className="space-y-4 view">
+        <div className="card space-y-5 py-7 text-center">
+          <div className="hanko w-14 h-14 text-2xl mx-auto">試</div>
+          <div>
+            <h2 className="text-xl font-extrabold">JFT-Basic মক টেস্ট</h2>
+            <p className="t-mu text-sm mt-1">আসল CBT পরীক্ষার মতো অনুশীলন</p>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              [ListChecks, questions.length, 'প্রশ্ন'],
+              [Timer, `${MINUTES} মি.`, 'সময়'],
+              [Target, '200/250', 'পাস মার্ক'],
+            ].map(([I, v, l]) => (
+              <div key={l} className="rounded-2xl py-3 px-1" style={{ background: 'var(--sf2)' }}>
+                <I className="w-4 h-4 mx-auto t-br" />
+                <b className="block text-[15px] mt-1 tabular-nums">{v}</b>
+                <span className="t-mu text-[11px]">{l}</span>
+              </div>
+            ))}
+          </div>
+          <ul className="text-left text-[13px] t-mu space-y-2 leading-relaxed">
+            <li>• শুরু করলে টাইমার চলতে থাকবে, থামানো যাবে না।</li>
+            <li>• প্রশ্ন-নম্বরে ট্যাপ করে যেকোনো প্রশ্নে যাওয়া যায়।</li>
+            <li>• নিশ্চিত নন? প্রশ্নে পতাকা দিয়ে পরে আবার দেখুন।</li>
+            <li>• শোনার প্রশ্নে 2x বাটনে অডিও দুইবার শোনা যায়।</li>
+          </ul>
+          <button onClick={() => setStarted(true)} className="btn btn-p w-full">পরীক্ষা শুরু করুন</button>
+        </div>
+      </div>
+    );
+  }
 
   if (result) {
     const reviewList = questions
@@ -63,9 +103,13 @@ export default function MockTest({ onSave, onExit }) {
     return (
       <div className="space-y-4 view">
         <div className="card text-center space-y-4 py-6">
-          <div className={`w-14 h-14 mx-auto rounded-2xl grid place-items-center ${result.passed ? 'bg-emerald-500/15 t-ok' : 'bg-rose-500/15 t-bad'}`}>
-            <Award className="w-8 h-8" />
-          </div>
+          {result.passed ? (
+            <div className="hanko pop w-20 h-20 text-2xl mx-auto" aria-label="পাস">合格</div>
+          ) : (
+            <div className="w-14 h-14 mx-auto rounded-2xl grid place-items-center bg-rose-500/15 t-bad">
+              <Award className="w-8 h-8" />
+            </div>
+          )}
           <div>
             <p className="text-5xl font-extrabold t-br tabular-nums">
               {result.score}<span className="text-base t-mu font-semibold"> / 250</span>
@@ -79,7 +123,7 @@ export default function MockTest({ onSave, onExit }) {
           </div>
 
           <div className="text-left space-y-3 pt-3 border-t" style={{ borderColor: 'var(--ln)' }}>
-            <p className="text-xs font-bold uppercase t-mu">বিভাগভিত্তিক ফলাফল</p>
+            <p className="text-xs font-bold t-mu">বিভাগভিত্তিক ফলাফল</p>
             {Object.entries(result.sec).map(([k, v]) => (
               <div key={k} className="space-y-1.5">
                 <div className="flex justify-between text-xs">
@@ -98,7 +142,7 @@ export default function MockTest({ onSave, onExit }) {
         </div>
 
         <div className="flex items-center justify-between gap-2 px-1">
-          <h3 className="text-xs font-bold uppercase t-mu">উত্তর পর্যালোচনা</h3>
+          <h3 className="text-xs font-bold t-mu">উত্তর পর্যালোচনা</h3>
           <div className="flex gap-1.5">
             {[['all', `সব (${questions.length})`], ['wrong', `ভুল (${result.total - result.correct})`], ['correct', `সঠিক (${result.correct})`]].map(([k, label]) => (
               <button
@@ -167,7 +211,8 @@ export default function MockTest({ onSave, onExit }) {
             <button
               key={i}
               onClick={() => setIdx(i)}
-              className={`w-8 h-8 rounded-xl text-xs font-bold shrink-0 transition tabular-nums ${
+              aria-label={`প্রশ্ন ${i + 1}`}
+              className={`relative w-9 h-9 rounded-xl text-xs font-bold shrink-0 transition tabular-nums ${
                 isCur
                   ? 'btn-p ring-2 ring-indigo-500/30'
                   : isAns
@@ -176,6 +221,7 @@ export default function MockTest({ onSave, onExit }) {
               }`}
             >
               {i + 1}
+              {flags[i] && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style={{ background: 'var(--shu)' }} />}
             </button>
           );
         })}
@@ -185,6 +231,16 @@ export default function MockTest({ onSave, onExit }) {
 
       {/* মূল প্রশ্ন কার্ড */}
       <div className="card space-y-4">
+        <div className="flex items-center justify-between gap-2 -mb-1">
+          <span className="t-mu text-xs">{answers[idx] === undefined ? 'এখনো উত্তর দেননি' : 'উত্তর দেওয়া হয়েছে'}</span>
+          <button
+            onClick={() => setFlags({ ...flags, [idx]: !flags[idx] })}
+            aria-pressed={!!flags[idx]}
+            className={`chip !py-1.5 ${flags[idx] ? 'chip-shu' : ''}`}
+          >
+            <Flag className="w-3.5 h-3.5" /> {flags[idx] ? 'পতাকা সরান' : 'পরে দেখব'}
+          </button>
+        </div>
         {q.passage && (
           <div className="rounded-2xl p-3.5 text-xs jp whitespace-pre-line leading-relaxed border" style={{ background: 'var(--sf2)', borderColor: 'var(--ln)' }}>
             <div className="flex items-center gap-1.5 font-bold t-br mb-1.5">
@@ -223,7 +279,10 @@ export default function MockTest({ onSave, onExit }) {
         </div>
       </div>
 
-      <div className="flex justify-between gap-3 pt-1">
+      <div
+        className="card !p-2.5 flex justify-between gap-2.5 sticky z-20"
+        style={{ bottom: 'calc(92px + env(safe-area-inset-bottom))' }}
+      >
         <button
           disabled={idx === 0}
           onClick={() => setIdx(idx - 1)}
@@ -233,19 +292,38 @@ export default function MockTest({ onSave, onExit }) {
         </button>
 
         {idx < questions.length - 1 ? (
-          <button onClick={() => setIdx(idx + 1)} className="btn btn-p flex-1 max-w-[180px]">
+          <button onClick={() => setIdx(idx + 1)} className="btn btn-p flex-1">
             পরবর্তী <ChevronRight className="w-4 h-4" />
           </button>
         ) : (
           <button
             onClick={submit}
-            className="btn text-white flex-1 max-w-[200px] shadow-lg shadow-emerald-500/20"
+            className="btn text-white flex-1"
             style={{ background: 'var(--ok)' }}
           >
             <CheckCircle2 className="w-4 h-4" /> পরীক্ষা শেষ করুন
           </button>
         )}
       </div>
+
+      {confirm && (
+        <div className="sheet-back" onClick={() => setConfirm(false)}>
+          <div className="sheet space-y-4" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <div>
+              <h3 className="text-lg font-extrabold">পরীক্ষা জমা দেবেন?</h3>
+              <p className="t-mu text-sm mt-1 leading-relaxed">
+                {questions.length - answeredCount}টি প্রশ্নের উত্তর দেওয়া হয়নি
+                {Object.values(flags).some(Boolean) ? ` এবং ${Object.values(flags).filter(Boolean).length}টিতে পতাকা দেওয়া আছে` : ''}।
+                জমা দিলে আর বদলানো যাবে না।
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setConfirm(false)} className="btn btn-g">ফিরে যান</button>
+              <button onClick={() => { setConfirm(false); finish(); }} className="btn btn-p">জমা দিন</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

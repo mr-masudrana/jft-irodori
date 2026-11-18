@@ -4,7 +4,7 @@
   "jpTitle": "いろどり 入門",
   "level": "A1 • N5",
   "badgeColor": "bg-teal-50 text-teal-700 border-teal-200",
-  "iconBg": "bg-teal-600",
+  "iconBg": "bg-[var(--br)]",
   "totalLessons": 18,
   "order": 1
 }

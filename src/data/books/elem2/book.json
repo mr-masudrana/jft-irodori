@@ -4,7 +4,7 @@
   "jpTitle": "いろどり 初級2",
   "level": "A2 • Advanced",
   "badgeColor": "bg-purple-50 text-purple-700 border-purple-200",
-  "iconBg": "bg-purple-600",
+  "iconBg": "bg-[var(--shu)]",
   "totalLessons": 18,
   "order": 3
 }

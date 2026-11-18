@@ -98,7 +98,7 @@ export default function AudioPlayer({ src, text, compact = false }) {
       <button
         type="button"
         onClick={(e) => start(e, false)}
-        className={`btn ${playing && !jft ? 'btn-p' : 'btn-g'} !py-2 !px-3.5 !rounded-xl text-xs`}
+        className={`btn ${playing && !jft ? 'btn-p' : 'btn-g'} !py-2 !min-h-[40px] !px-3.5 !rounded-xl text-xs`}
       >
         {playing && !jft ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current" />}
         {playing && !jft ? 'থামুন' : 'শুনুন'}
@@ -106,7 +106,7 @@ export default function AudioPlayer({ src, text, compact = false }) {
       <button
         type="button"
         onClick={(e) => start(e, true)}
-        className={`btn ${playing && jft ? 'btn-p' : 'btn-g'} !py-2 !px-3 !rounded-xl text-xs`}
+        className={`btn ${playing && jft ? 'btn-p' : 'btn-g'} !py-2 !min-h-[40px] !px-3 !rounded-xl text-xs`}
         title="JFT পরীক্ষার মতো ২ বার শুনুন"
       >
         <Repeat className="w-3.5 h-3.5" />
@@ -115,7 +115,7 @@ export default function AudioPlayer({ src, text, compact = false }) {
       <button
         type="button"
         onClick={toggleSpeed}
-        className="btn btn-g !py-2 !px-3 !rounded-xl text-xs ml-auto tabular-nums"
+        className="btn btn-g !py-2 !min-h-[40px] !px-3 !rounded-xl text-xs ml-auto tabular-nums"
         title="গতি পরিবর্তন"
       >
         <Gauge className="w-3.5 h-3.5 t-br" />
