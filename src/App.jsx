@@ -9,7 +9,7 @@ import MockTest from './components/MockTest';
 import Offline from './components/Offline';
 import VocabTab from './components/VocabTab';
 import { Review, Quiz } from './components/Review';
-import { useStore, addXp, liveStreak, cards, isDue, dayNum, DAILY_GOAL, todayXp, setResume } from './lib/store';
+import { useStore, addXp, liveStreak, cards, isDue, dayNum, DAILY_GOAL, todayXp, setResume, speakJa } from './lib/store';
 
 const TABS = [
   ['home', Home, 'হোম'],
@@ -48,7 +48,7 @@ function parseHash() {
     const x = r.lessonId ? p[3] : null;
     if (x === 'quiz' || x === 'review') r.mode = x;
     else if (/^a\d+$/.test(x || '')) r.sec = Number(x.slice(1));
-    else if (['vocab', 'grammar', 'kanji', 'dialogues', 'tips'].includes(x)) r.sec = x;
+    else if (['vocab', 'grammar', 'kanji', 'dialogues', 'tips', 'hiragana', 'katakana'].includes(x)) r.sec = x;
   }
   return r;
 }
@@ -60,6 +60,7 @@ const toHash = ({ tab, bookId, lessonId, sec, mode, cat }) => {
   return '#/' + [tab, ...seg].filter((x) => x !== null && x !== undefined && x !== false && x !== '').map(encodeURIComponent).join('/');
 };
 const depth = () => window.history.state?.n || 0;
+const kanaCount = (h) => (h ? h.charts.reduce((n, c) => n + c.rows.reduce((m, r) => m + r.cells.filter(Boolean).length, 0), 0) : 0);
 const greet = () => { const h = new Date().getHours(); return h < 11 ? 'おはよう' : h < 18 ? 'こんにちは' : 'こんばんは'; };
 
 // দৈনিক XP লক্ষ্যের রিং
@@ -176,7 +177,7 @@ export default function App() {
     : lesson ? (
       sec === null ? `Lesson ${lesson.lessonNumber}`
       : typeof sec === 'number' ? `L${lesson.lessonNumber} • অ্যাক্টিভিটি ${sec + 1}`
-      : { vocab: 'ভোকাবুলারি', grammar: 'গ্রামার', kanji: 'কান্জি', dialogues: 'কথোপকথন', tips: 'জাপানে জীবনের টিপস' }[sec]
+      : { vocab: 'ভোকাবুলারি', grammar: 'গ্রামার', kanji: 'কান্জি', dialogues: 'কথোপকথন', tips: 'জাপানে জীবনের টিপস', hiragana: 'হিরাগানা চার্ট', katakana: 'কাতাকানা চার্ট' }[sec]
     )
     : book ? book.title : 'Irodori বইসমূহ';
 
@@ -268,6 +269,8 @@ export default function App() {
     const rows = [
       ['dialogues', '🎧', 'কথোপকথন', lesson.dialogues.length],
       ['vocab', '📚', lesson.script ? `ভোকাবুলারি (${lesson.script})` : 'ভোকাবুলারি', lesson.vocabulary.length],
+      ['hiragana', 'あ', 'হিরাগানা চার্ট', kanaCount(lesson.hiragana)],
+      ['katakana', 'カ', 'কাতাকানা চার্ট', kanaCount(lesson.katakana)],
       ['grammar', '🧩', 'গ্রামার', lesson.grammar.length],
       ['kanji', '🈶', 'কান্জি', lesson.kanji.length],
       ['tips', '💡', 'জাপানে জীবনের টিপস', (lesson.tips || []).length],
@@ -349,6 +352,75 @@ export default function App() {
   };
 
   // স্তর ৪: বিস্তারিত সেকশন
+  // বাক্য/শব্দের সারি: জাপানিজ + রোমাজি + বাংলা + অডিও
+  const WordRow = (w, i) => (
+    <div key={i} className="flex items-center justify-between gap-3 py-2.5 border-b last:border-b-0" style={{ borderColor: 'var(--ln)' }}>
+      <div className="min-w-0">
+        <p className="text-lg jp-display leading-tight">{w.jp}</p>
+        {w.romaji && <p className="t-br text-xs font-semibold mt-0.5">{w.romaji}</p>}
+        {w.bn && <p className="text-sm mt-0.5">{w.bn}</p>}
+        {w.note && <p className="t-mu text-[11px] mt-0.5">{w.note}</p>}
+      </div>
+      <AudioPlayer key={`${w.jp}-${i}`} text={w.jp.replace(/[（）()]/g, '')} compact />
+    </div>
+  );
+
+  const KanaChart = (c, ci) => (
+    <div key={ci} className="card space-y-2.5">
+      <p className="font-bold text-sm">{c.title}</p>
+      {c.note && <p className="t-mu text-xs leading-relaxed">{c.note}</p>}
+      <div className="grid gap-1" style={{ gridTemplateColumns: `22px repeat(${c.cols.length}, minmax(0, 1fr))` }}>
+        <span />
+        {c.cols.map((h) => <span key={h} className="text-center text-[11px] font-bold t-mu">{h}</span>)}
+        {c.rows.map((r, ri) => (
+          <React.Fragment key={ri}>
+            <span className="grid place-items-center text-[11px] font-bold t-br">{r.row}</span>
+            {r.cells.map((x, xi) => (x ? (
+              <button
+                key={xi} onClick={() => speakJa(x[0])} aria-label={`${x[0]} ${x[1]}`}
+                className="rounded-xl py-1.5 text-center active:scale-95 transition" style={{ background: 'var(--sf2)' }}
+              >
+                <span className={`block jp-display leading-none ${c.cols.length > 5 ? 'text-base' : 'text-xl'}`}>{x[0]}</span>
+                <span className="block text-[10px] t-mu mt-1">{x[1]}</span>
+              </button>
+            ) : <span key={xi} />))}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+
+  const Hiragana = (h) => (
+    <div className="space-y-4">
+      <div className="card flex items-center gap-3.5">
+        <div className="hanko w-12 h-12 text-xl">{h.glyph || 'あ'}</div>
+        <div className="min-w-0">
+          <p className="font-bold">{h.name || 'ひらがな — হিরাগানা'}</p>
+          <p className="t-mu text-xs mt-0.5">{h.intro ? `${h.intro} ` : ''}যেকোনো বর্ণে ট্যাপ করলে উচ্চারণ শুনতে পাবেন</p>
+        </div>
+      </div>
+      {h.charts.map(KanaChart)}
+      <div className="card">
+        <p className="font-bold text-sm">দীর্ঘ স্বর (のばす音)</p>
+        <p className="t-mu text-xs leading-relaxed mt-1 mb-1">{h.longVowelNote}</p>
+        {h.longVowels.map(WordRow)}
+      </div>
+      <div className="card">
+        <p className="font-bold text-sm">দ্বিত্ব ব্যঞ্জন (つまる音)</p>
+        <p className="t-mu text-xs leading-relaxed mt-1 mb-1">{h.longConsonantNote}</p>
+        {h.longConsonants.map(WordRow)}
+      </div>
+      <div className="card">
+        <p className="font-bold text-sm">{h.practiceTitle || 'হিরাগানায় লেখা শব্দ পড়ুন'}</p>
+        {h.practice.map(WordRow)}
+      </div>
+      <div className="card space-y-2">
+        <p className="font-bold text-sm">কিবোর্ড/স্মার্টফোনে জাপানি লেখা (ローマ字入力)</p>
+        {h.inputTips.map((t, i) => <p key={i} className="t-mu text-[13px] leading-relaxed">• {t}</p>)}
+      </div>
+    </div>
+  );
+
   const SectionView = () => {
     if (typeof sec === 'number') {
       const a = lesson.activities[sec];
@@ -375,7 +447,30 @@ export default function App() {
               {on ? 'সম্পন্ন — আবার ট্যাপ করলে চিহ্ন সরে যাবে' : 'শেষ হলে এখানে ট্যাপ করে সম্পন্ন করুন'}
             </p>
           </div>
-          {a.dialogues.length ? (<>{HideBtn()}{Dialogues(a.dialogues)}</>) : Empty()}
+          {a.numbers?.length > 0 && (
+            <div className="card space-y-2.5">
+              <p className="font-bold text-sm">সংখ্যা (০–১০) — ট্যাপ করে শুনুন</p>
+              <div className="grid grid-cols-4 gap-2">
+                {a.numbers.map((x) => (
+                  <button
+                    key={x.n} onClick={() => speakJa(x.jp)} aria-label={`${x.n} ${x.jp}`}
+                    className="rounded-xl py-2 text-center active:scale-95 transition" style={{ background: 'var(--sf2)' }}
+                  >
+                    <span className="block text-lg font-extrabold tabular-nums t-br leading-none">{x.n}</span>
+                    <span className="block text-base jp-display mt-1 leading-none">{x.jp}</span>
+                    <span className="block text-[10px] t-mu mt-1">{x.romaji}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {a.phrases?.length > 0 && (
+            <div className="card">
+              <p className="font-bold text-sm mb-1">মূল বাক্য ও শব্দ</p>
+              {a.phrases.map(WordRow)}
+            </div>
+          )}
+          {a.dialogues.length ? (<>{HideBtn()}{Dialogues(a.dialogues)}</>) : (a.phrases?.length ? null : Empty())}
         </div>
       );
     }
@@ -429,6 +524,9 @@ export default function App() {
           </>
         )}
 
+        {sec === 'hiragana' && lesson.hiragana && Hiragana(lesson.hiragana)}
+        {sec === 'katakana' && lesson.katakana && Hiragana(lesson.katakana)}
+
         {sec === 'tips' && list.length > 0 && (
           <div className="card space-y-3.5">
             <p className="t-mu text-xs">Tips for life in Japan — জাপানের জীবন ও সংস্কৃতির টপিক</p>
@@ -438,6 +536,7 @@ export default function App() {
                 <div className="min-w-0">
                   <p className="font-semibold text-sm leading-snug">{t.en}</p>
                   {t.bn && <p className="t-mu text-[13px] mt-0.5 leading-snug">{t.bn}</p>}
+                  {t.text && t.text.map((para, j) => <p key={j} className="text-[13px] leading-relaxed mt-2">{para}</p>)}
                 </div>
               </div>
             ))}
@@ -566,7 +665,7 @@ export default function App() {
         <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><Info className="w-6 h-6" /></div>
         <div className="min-w-0">
           <p className="font-bold text-[15px]">Irodori JFT-Basic</p>
-          <p className="t-mu text-xs mt-0.5">সংস্করণ 4.4 • ডেটা শুধু আপনার ডিভাইসে সেভ থাকে</p>
+          <p className="t-mu text-xs mt-0.5">সংস্করণ 4.6 • ডেটা শুধু আপনার ডিভাইসে সেভ থাকে</p>
         </div>
       </div>
     </div>
