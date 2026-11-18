@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
+import {
+  Clock, CheckCircle2, XCircle, RotateCcw, ChevronLeft, ChevronRight,
+  Award, Headphones, FileText,
+} from 'lucide-react';
 import questions from '../data/mock_exam.json';
 import AudioPlayer from './AudioPlayer';
 
@@ -11,91 +14,237 @@ export default function MockTest({ onSave, onExit }) {
   const [answers, setAnswers] = useState({});
   const [left, setLeft] = useState(MINUTES * 60);
   const [result, setResult] = useState(null);
-  const ans = useRef({}); ans.current = answers;
+  const [filter, setFilter] = useState('all'); // 'all' | 'wrong' | 'correct'
+  const ans = useRef({});
+  ans.current = answers;
 
   const finish = () => {
-    let correct = 0; const sec = {};
+    let correct = 0;
+    const sec = {};
     questions.forEach((q, i) => {
-      sec[q.section] = sec[q.section] || [0, 0]; sec[q.section][1]++;
+      sec[q.section] = sec[q.section] || [0, 0];
+      sec[q.section][1]++;
       if (ans.current[i] === q.answer) { correct++; sec[q.section][0]++; }
     });
     const score = Math.round((correct / questions.length) * 250);
     const r = { score, correct, total: questions.length, sec, passed: score >= 200 };
-    setResult(r); onSave({ date: Date.now(), score, correct, total: questions.length, sec });
+    setResult(r);
+    onSave({ date: Date.now(), score, correct, total: questions.length, sec });
   };
+
   useEffect(() => {
     if (result) return;
-    const t = setInterval(() => setLeft((l) => { if (l <= 1) { clearInterval(t); setTimeout(finish, 0); return 0; } return l - 1; }), 1000);
+    const t = setInterval(() => setLeft((l) => {
+      if (l <= 1) { clearInterval(t); setTimeout(finish, 0); return 0; }
+      return l - 1;
+    }), 1000);
     return () => clearInterval(t);
   }, [result]); // eslint-disable-line
+
   const submit = () => {
     const un = questions.length - Object.keys(answers).length;
-    if (un && !window.confirm(`${un}টি প্রশ্নের উত্তর দেওয়া হয়নি। জমা দেবেন?`)) return;
+    if (un && !window.confirm(`${un}টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?`)) return;
     finish();
   };
-  const reset = () => { setAnswers({}); setIdx(0); setLeft(MINUTES * 60); setResult(null); };
+
+  const reset = () => {
+    setAnswers({});
+    setIdx(0);
+    setLeft(MINUTES * 60);
+    setResult(null);
+    setFilter('all');
+  };
 
   if (result) {
+    const reviewList = questions
+      .map((q, i) => ({ q, i, ok: answers[i] === q.answer }))
+      .filter((x) => (filter === 'all' ? true : filter === 'wrong' ? !x.ok : x.ok));
+
     return (
       <div className="space-y-4 view">
-        <div className="card text-center space-y-2 py-6">
-          <p className="text-5xl font-extrabold t-br">{result.score}<span className="text-base t-mu"> / 250</span></p>
-          <span className={`chip ${result.passed ? 't-ok' : 't-bad'}`}>{result.passed ? 'PASSED (পাস মার্ক ২০০)' : 'NOT PASSED (পাস মার্ক ২০০)'}</span>
-          <p className="t-mu text-xs">সঠিক {result.correct}/{result.total}</p>
-          <div className="text-left space-y-2 pt-3">
+        <div className="card text-center space-y-4 py-6">
+          <div className={`w-14 h-14 mx-auto rounded-2xl grid place-items-center ${result.passed ? 'bg-emerald-500/15 t-ok' : 'bg-rose-500/15 t-bad'}`}>
+            <Award className="w-8 h-8" />
+          </div>
+          <div>
+            <p className="text-5xl font-extrabold t-br tabular-nums">
+              {result.score}<span className="text-base t-mu font-semibold"> / 250</span>
+            </p>
+            <div className="mt-2 flex items-center justify-center gap-2">
+              <span className={`chip ${result.passed ? '!bg-emerald-500/15 !text-emerald-600 dark:!text-emerald-400' : '!bg-rose-500/15 !text-rose-600 dark:!text-rose-400'}`}>
+                {result.passed ? 'PASSED (পাস মার্ক ২০০)' : 'NOT PASSED (পাস মার্ক ২০০)'}
+              </span>
+              <span className="chip tabular-nums">সঠিক {result.correct}/{result.total}</span>
+            </div>
+          </div>
+
+          <div className="text-left space-y-3 pt-3 border-t" style={{ borderColor: 'var(--ln)' }}>
+            <p className="text-xs font-bold uppercase t-mu">বিভাগভিত্তিক ফলাফল</p>
             {Object.entries(result.sec).map(([k, v]) => (
-              <div key={k}><div className="flex justify-between text-xs mb-1"><span>{k}</span><b>{v[0]}/{v[1]}</b></div>
-                <div className="bar"><i style={{ width: `${(v[0] / v[1]) * 100}%` }} /></div></div>
+              <div key={k} className="space-y-1.5">
+                <div className="flex justify-between text-xs">
+                  <span className="font-medium">{k}</span>
+                  <b className="tabular-nums">{v[0]}/{v[1]} ({Math.round((v[0] / v[1]) * 100)}%)</b>
+                </div>
+                <div className="bar"><i style={{ width: `${(v[0] / v[1]) * 100}%` }} /></div>
+              </div>
             ))}
           </div>
-          <div className="flex gap-2 justify-center pt-3">
-            <button onClick={reset} className="btn btn-p"><RotateCcw className="w-4 h-4" /> আবার দিন</button>
+
+          <div className="flex gap-2.5 justify-center pt-2">
+            <button onClick={reset} className="btn btn-p flex-1"><RotateCcw className="w-4 h-4" /> আবার পরীক্ষা দিন</button>
             <button onClick={onExit} className="btn btn-g">হোম</button>
           </div>
         </div>
-        <h3 className="text-xs font-bold uppercase t-mu px-1">উত্তর পর্যালোচনা</h3>
-        {questions.map((q, i) => {
-          const ok = answers[i] === q.answer;
-          return (
-            <div key={q.id} className="card space-y-2">
-              <div className="flex justify-between"><span className="chip">Q{i + 1} • {q.section}</span>
-                {ok ? <CheckCircle2 className="w-4 h-4 t-ok" /> : <XCircle className="w-4 h-4 t-bad" />}</div>
-              <p className="text-sm font-semibold whitespace-pre-line">{q.question}</p>
-              {!ok && <p className="text-xs t-bad">আপনার উত্তর: {answers[i] === undefined ? 'দেননি' : q.options[answers[i]]}</p>}
-              <p className="text-xs t-ok font-medium">সঠিক: {q.options[q.answer]}</p>
-              <p className="text-xs t-mu">{q.explanation}</p>
+
+        <div className="flex items-center justify-between gap-2 px-1">
+          <h3 className="text-xs font-bold uppercase t-mu">উত্তর পর্যালোচনা</h3>
+          <div className="flex gap-1.5">
+            {[['all', `সব (${questions.length})`], ['wrong', `ভুল (${result.total - result.correct})`], ['correct', `সঠিক (${result.correct})`]].map(([k, label]) => (
+              <button
+                key={k}
+                onClick={() => setFilter(k)}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition ${
+                  filter === k ? 'btn-p' : 'btn-g !border'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {reviewList.length === 0 && (
+          <div className="card text-center text-sm t-mu py-6">এই ক্যাটাগরিতে কোনো প্রশ্ন নেই।</div>
+        )}
+
+        {reviewList.map(({ q, i, ok }) => (
+          <div key={q.id} className="card space-y-2.5">
+            <div className="flex justify-between items-center">
+              <span className="chip">Q{i + 1} • {q.section}</span>
+              {ok ? <CheckCircle2 className="w-5 h-5 t-ok" /> : <XCircle className="w-5 h-5 t-bad" />}
             </div>
-          );
-        })}
+            <p className="text-sm font-semibold jp whitespace-pre-line leading-relaxed">{q.question}</p>
+            {!ok && (
+              <div className="rounded-xl p-2.5 text-xs bg-rose-500/10 t-bad">
+                <b>আপনার উত্তর:</b> {answers[i] === undefined ? 'উত্তর দেননি' : q.options[answers[i]]}
+              </div>
+            )}
+            <div className="rounded-xl p-2.5 text-xs bg-emerald-500/10 t-ok font-medium">
+              <b>সঠিক উত্তর:</b> {q.options[q.answer]}
+            </div>
+            <p className="text-xs t-mu leading-relaxed">{q.explanation}</p>
+          </div>
+        ))}
       </div>
     );
   }
+
   const q = questions[idx];
+  const answeredCount = Object.keys(answers).length;
+
   return (
-    <div className="space-y-3 view">
-      <div className="card flex items-center justify-between !py-3">
-        <span className="text-xs font-bold">প্রশ্ন {idx + 1}/{questions.length}</span>
-        <span className="chip">{q.section}</span>
-        <span className={`flex items-center gap-1 text-xs font-bold ${left < 60 ? 't-bad' : 't-br'}`}><Clock className="w-3.5 h-3.5" />{fmt(left)}</span>
+    <div className="space-y-3.5 view">
+      {/* টপ স্ট্যাটাস ও টাইমার */}
+      <div className="card flex items-center justify-between gap-2 !py-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-xs font-bold tabular-nums shrink-0">প্রশ্ন {idx + 1}/{questions.length}</span>
+          <span className="chip truncate">{q.section}</span>
+        </div>
+        <span className={`flex items-center gap-1.5 text-xs font-extrabold px-2.5 py-1 rounded-full tabular-nums shrink-0 ${
+          left < 120 ? 'bg-rose-500/15 t-bad animate-pulse' : 'chip-b'
+        }`}>
+          <Clock className="w-3.5 h-3.5" />{fmt(left)}
+        </span>
       </div>
-      <div className="bar"><i style={{ width: `${(Object.keys(answers).length / questions.length) * 100}%` }} /></div>
+
+      {/* প্রশ্ন প্যালেট (CBT নেভিগেটর) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        {questions.map((_, i) => {
+          const isCur = i === idx;
+          const isAns = answers[i] !== undefined;
+          return (
+            <button
+              key={i}
+              onClick={() => setIdx(i)}
+              className={`w-8 h-8 rounded-xl text-xs font-bold shrink-0 transition tabular-nums ${
+                isCur
+                  ? 'btn-p ring-2 ring-indigo-500/30'
+                  : isAns
+                  ? 'chip-b border border-indigo-400/30'
+                  : 'btn-g !p-0 t-mu'
+              }`}
+            >
+              {i + 1}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="bar"><i style={{ width: `${(answeredCount / questions.length) * 100}%` }} /></div>
+
+      {/* মূল প্রশ্ন কার্ড */}
       <div className="card space-y-4">
-        {q.passage && <div className="chip-b rounded-xl p-3 text-xs whitespace-pre-line leading-relaxed">{q.passage}</div>}
-        {q.section.startsWith('Listening') && <AudioPlayer key={q.id} src={q.audio} text={q.transcript} />}
-        <p className="font-bold whitespace-pre-line leading-relaxed">{q.question}</p>
+        {q.passage && (
+          <div className="rounded-2xl p-3.5 text-xs jp whitespace-pre-line leading-relaxed border" style={{ background: 'var(--sf2)', borderColor: 'var(--ln)' }}>
+            <div className="flex items-center gap-1.5 font-bold t-br mb-1.5">
+              <FileText className="w-3.5 h-3.5" /> পাঠ্যাংশ / বিজ্ঞপ্তি
+            </div>
+            {q.passage}
+          </div>
+        )}
+
+        {q.section.startsWith('Listening') && (
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs font-bold t-br">
+              <Headphones className="w-3.5 h-3.5" /> অডিও মনোযোগ দিয়ে শুনুন
+            </div>
+            <AudioPlayer key={q.id} src={q.audio} text={q.transcript} />
+          </div>
+        )}
+
+        <p className="font-bold text-base jp whitespace-pre-line leading-relaxed">{q.question}</p>
+
         <div className="space-y-2.5">
           {q.options.map((o, k) => (
-            <button key={k} onClick={() => setAnswers({ ...answers, [idx]: k })} className={`opt ${answers[idx] === k ? 'sel' : ''}`}>
-              <span className="w-6 h-6 rounded-full grid place-items-center text-xs font-bold chip-b shrink-0">{k + 1}</span>{o}
+            <button
+              key={k}
+              onClick={() => setAnswers({ ...answers, [idx]: k })}
+              className={`opt jp ${answers[idx] === k ? 'sel' : ''}`}
+            >
+              <span className={`w-7 h-7 rounded-full grid place-items-center text-xs font-bold shrink-0 ${
+                answers[idx] === k ? 'btn-p' : 'chip-b'
+              }`}>
+                {k + 1}
+              </span>
+              <span className="flex-1">{o}</span>
             </button>
           ))}
         </div>
       </div>
-      <div className="flex justify-between gap-3">
-        <button disabled={idx === 0} onClick={() => setIdx(idx - 1)} className="btn btn-g disabled:opacity-40">পূর্ববর্তী</button>
-        {idx < questions.length - 1
-          ? <button onClick={() => setIdx(idx + 1)} className="btn btn-p">পরবর্তী</button>
-          : <button onClick={submit} className="btn text-white" style={{ background: 'var(--ok)' }}>শেষ করুন</button>}
+
+      <div className="flex justify-between gap-3 pt-1">
+        <button
+          disabled={idx === 0}
+          onClick={() => setIdx(idx - 1)}
+          className="btn btn-g disabled:opacity-40"
+        >
+          <ChevronLeft className="w-4 h-4" /> পূর্ববর্তী
+        </button>
+
+        {idx < questions.length - 1 ? (
+          <button onClick={() => setIdx(idx + 1)} className="btn btn-p flex-1 max-w-[180px]">
+            পরবর্তী <ChevronRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            onClick={submit}
+            className="btn text-white flex-1 max-w-[200px] shadow-lg shadow-emerald-500/20"
+            style={{ background: 'var(--ok)' }}
+          >
+            <CheckCircle2 className="w-4 h-4" /> পরীক্ষা শেষ করুন
+          </button>
+        )}
       </div>
     </div>
   );
