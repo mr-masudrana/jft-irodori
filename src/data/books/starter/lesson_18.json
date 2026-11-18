@@ -39,7 +39,7 @@
       "meaningBn": ""
     },
     {
-      "pattern": "どこかV-ます",
+      "pattern": "どこか V-ます",
       "example": "どこか旅行したいです。",
       "meaningBn": ""
     },
@@ -60,40 +60,74 @@
     },
     {
       "pattern": "S1。それに、S2。 / S1。でも、S2。",
-      "example": "気持ちよかったです。それに、景色もきれいでした。",
+      "example": "気持ちよかったです。それに、景色もきれいでした。 / おいしかったです。でも、ちょっと高かったです。",
       "meaningBn": ""
     }
   ],
   "kanji": [
     {
       "char": "温泉",
-      "reading": "",
-      "bn": ""
+      "reading": "おんせん",
+      "bn": "উষ্ণ প্রস্রবণ (অনসেন)"
     },
     {
       "char": "予定",
-      "reading": "",
-      "bn": ""
+      "reading": "よてい",
+      "bn": "পরিকল্পনা"
     },
     {
       "char": "来週",
-      "reading": "",
-      "bn": ""
+      "reading": "らいしゅう",
+      "bn": "আগামী সপ্তাহ"
     },
     {
       "char": "会います",
-      "reading": "",
-      "bn": ""
+      "reading": "あいます",
+      "bn": "দেখা করি"
     },
     {
       "char": "入ります",
-      "reading": "",
-      "bn": ""
+      "reading": "はいります",
+      "bn": "প্রবেশ করি / (স্নানে) নামি"
     },
     {
       "char": "旅行します",
-      "reading": "",
-      "bn": ""
+      "reading": "りょこうします",
+      "bn": "ভ্রমণ করি"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Golden Week",
+      "bn": "গোল্ডেন উইক"
+    },
+    {
+      "en": "Tokyo Disney Resort",
+      "bn": "টোকিও ডিজনি রিসোর্ট"
+    },
+    {
+      "en": "Shinkansen",
+      "bn": "শিনকানসেন"
+    },
+    {
+      "en": "Climbing Mt. Fuji",
+      "bn": "ফুজি পর্বত আরোহণ"
+    },
+    {
+      "en": "Japanese animation / “Your Name” / “Doraemon”",
+      "bn": "জাপানি অ্যানিমেশন / “Your Name” / “Doraemon”"
+    },
+    {
+      "en": "Dorayaki",
+      "bn": "দোরায়াকি"
+    },
+    {
+      "en": "Yokohama",
+      "bn": "ইয়োকোহামা"
+    },
+    {
+      "en": "Hot springs",
+      "bn": "গরম পানির ঝরনা (অনসেন)"
     }
   ]
 }

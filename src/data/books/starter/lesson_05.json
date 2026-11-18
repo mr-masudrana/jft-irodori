@@ -40,8 +40,8 @@
   "vocabulary": [],
   "grammar": [
     {
-      "pattern": "Nが好きです",
-      "example": "肉と野菜が好きです。",
+      "pattern": "Nが好きです / Nは好きじゃないです",
+      "example": "肉と野菜が好きです。 / 魚は好きじゃないです。",
       "meaningBn": ""
     },
     {
@@ -50,8 +50,8 @@
       "meaningBn": ""
     },
     {
-      "pattern": "V-ますか？",
-      "example": "お茶、飲みますか？",
+      "pattern": "V-ますか？ (マス-form) / V-る？ (dictionary-form)",
+      "example": "お茶、飲みますか？ / 何、飲む？",
       "meaningBn": ""
     },
     {
@@ -60,31 +60,53 @@
       "meaningBn": ""
     },
     {
-      "pattern": "(Nは)V-ません",
-      "example": "私は、朝ご飯は、あまり食べません。",
+      "pattern": "(Nは)V-ません / (Nは)V-ないです",
+      "example": "私は、朝ご飯は、あまり食べません。 / 私も、食べないです。",
       "meaningBn": ""
     },
     {
-      "pattern": "【いつも／よく】V-ます / あまり V-ません",
-      "example": "私は、パンと、卵と、ヨーグルトをよく食べます。",
+      "pattern": "【いつも／よく】V-ます / あまり V-ません <Frequency>",
+      "example": "私は、パンと、卵と、ヨーグルトをよく食べます。 / 朝ご飯は、あまり食べません。",
       "meaningBn": ""
     }
   ],
   "kanji": [
     {
       "char": "水",
-      "reading": "",
-      "bn": ""
+      "reading": "みず",
+      "bn": "পানি"
     },
     {
       "char": "食べます",
-      "reading": "",
-      "bn": ""
+      "reading": "たべます",
+      "bn": "খাই"
     },
     {
       "char": "飲みます",
-      "reading": "",
-      "bn": ""
+      "reading": "のみます",
+      "bn": "পান করি / খাই (তরল)"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Japanese food (Sashimi and Sushi / Tempura / Udon and Soba / Curry)",
+      "bn": "জাপানি খাবার (সাশিমি ও সুশি / টেম্পুরা / উদন ও সোবা / কারি)"
+    },
+    {
+      "en": "Donburi-mono (rice bowl with topping)",
+      "bn": "দনবুরিমনো (টপিংসহ ভাতের বাটি)"
+    },
+    {
+      "en": "Japanese food that foreigners often dislike",
+      "bn": "যে জাপানি খাবার বিদেশিরা প্রায়ই অপছন্দ করেন"
+    },
+    {
+      "en": "Japanese sake",
+      "bn": "জাপানি সাকে"
+    },
+    {
+      "en": "Japanese breakfasts",
+      "bn": "জাপানি সকালের নাস্তা"
     }
   ]
 }

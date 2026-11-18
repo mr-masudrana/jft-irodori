@@ -453,5 +453,20 @@
     }
   ],
   "grammar": [],
-  "kanji": []
+  "kanji": [],
+  "tips": [
+    {
+      "en": "Greeting gestures",
+      "bn": "অভিবাদনের ভঙ্গি"
+    },
+    {
+      "en": "“Sayoonara”",
+      "bn": "「さよなら」(সায়োনারা) কখন বলা হয়"
+    },
+    {
+      "en": "When to use “sumimasen”",
+      "bn": "「すみません」কখন ব্যবহার করবেন"
+    }
+  ],
+  "script": "Hiragana"
 }

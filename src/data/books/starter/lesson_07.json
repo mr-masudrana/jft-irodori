@@ -45,7 +45,7 @@
       "meaningBn": ""
     },
     {
-      "pattern": "【place】にNがあります",
+      "pattern": "【place】にNがあります / 【place】にNが【number】あります",
       "example": "ここに階段があります。 / 1階に部屋が4つあります。",
       "meaningBn": ""
     },
@@ -68,23 +68,41 @@
   "kanji": [
     {
       "char": "家",
-      "reading": "",
-      "bn": ""
+      "reading": "いえ",
+      "bn": "বাড়ি"
     },
     {
       "char": "新しい",
-      "reading": "",
-      "bn": ""
+      "reading": "あたらしい",
+      "bn": "নতুন"
     },
     {
       "char": "広い",
-      "reading": "",
-      "bn": ""
+      "reading": "ひろい",
+      "bn": "প্রশস্ত"
     },
     {
       "char": "古い",
-      "reading": "",
-      "bn": ""
+      "reading": "ふるい",
+      "bn": "পুরনো"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Japanese houses",
+      "bn": "জাপানি বাড়ি"
+    },
+    {
+      "en": "Futon",
+      "bn": "ফুটন (জাপানি বিছানা)"
+    },
+    {
+      "en": "Types of Japanese houses",
+      "bn": "জাপানি বাড়ির ধরন"
+    },
+    {
+      "en": "Japanese address system",
+      "bn": "জাপানি ঠিকানা পদ্ধতি"
     }
   ]
 }

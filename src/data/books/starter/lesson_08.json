@@ -44,8 +44,8 @@
       "meaningBn": ""
     },
     {
-      "pattern": "(【person】は)いません / いないです",
-      "example": "辻さん、いませんね。",
+      "pattern": "(【person】は)いません / (【person】は)いないです",
+      "example": "辻さんは、いませんね。 / アマンダさん、いないですね。",
       "meaningBn": ""
     },
     {
@@ -62,18 +62,32 @@
   "kanji": [
     {
       "char": "上",
-      "reading": "",
-      "bn": ""
+      "reading": "うえ",
+      "bn": "উপরে"
     },
     {
       "char": "下",
-      "reading": "",
-      "bn": ""
+      "reading": "した",
+      "bn": "নিচে"
     },
     {
       "char": "中",
-      "reading": "",
-      "bn": ""
+      "reading": "なか",
+      "bn": "ভেতরে"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Uniforms",
+      "bn": "ইউনিফর্ম"
+    },
+    {
+      "en": "Tea",
+      "bn": "চা"
+    },
+    {
+      "en": "Fax (facsimile)",
+      "bn": "ফ্যাক্স"
     }
   ]
 }

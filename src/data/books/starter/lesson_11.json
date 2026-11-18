@@ -44,13 +44,13 @@
       "meaningBn": ""
     },
     {
-      "pattern": "あまり ナA-じゃないです / イA-くないです",
+      "pattern": "あまり ナA-じゃないです / イA-くないです <Extent>",
       "example": "スポーツは、あまり好きじゃないです。",
       "meaningBn": ""
     },
     {
-      "pattern": "【いつも／たいてい／よく／ときどき】V-ます / 【あまり／ぜんぜん】V-ません",
-      "example": "休みの日は、たいてい、映画を見ます。 / スポーツは、ぜんぜんしません。",
+      "pattern": "【いつも／たいてい／よく／ときどき】V-ます / 【あまり／ぜんぜん】V-ません <Frequency>",
+      "example": "休みの日は、たいてい、映画を見ます。 / スポーツは、ぜんぜんしないね。",
       "meaningBn": ""
     },
     {
@@ -62,33 +62,55 @@
   "kanji": [
     {
       "char": "読みます",
-      "reading": "",
-      "bn": ""
+      "reading": "よみます",
+      "bn": "পড়ি"
     },
     {
       "char": "聞きます",
-      "reading": "",
-      "bn": ""
+      "reading": "ききます",
+      "bn": "শুনি"
     },
     {
       "char": "見ます",
-      "reading": "",
-      "bn": ""
+      "reading": "みます",
+      "bn": "দেখি"
     },
     {
       "char": "本",
-      "reading": "",
-      "bn": ""
+      "reading": "ほん",
+      "bn": "বই"
     },
     {
       "char": "友だち",
-      "reading": "",
-      "bn": ""
+      "reading": "ともだち",
+      "bn": "বন্ধু"
     },
     {
       "char": "何",
-      "reading": "",
-      "bn": ""
+      "reading": "なに / なん",
+      "bn": "কী"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Japanese manga",
+      "bn": "জাপানি মাঙ্গা"
+    },
+    {
+      "en": "Japanese videogames",
+      "bn": "জাপানি ভিডিও গেম"
+    },
+    {
+      "en": "Japanese literature",
+      "bn": "জাপানি সাহিত্য"
+    },
+    {
+      "en": "Soccer / Rugby",
+      "bn": "ফুটবল / রাগবি"
+    },
+    {
+      "en": "Pachinko",
+      "bn": "পাচিনকো"
     }
   ]
 }

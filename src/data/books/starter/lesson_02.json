@@ -675,5 +675,24 @@
     }
   ],
   "grammar": [],
-  "kanji": []
+  "kanji": [],
+  "tips": [
+    {
+      "en": "Residence card",
+      "bn": "রেসিডেন্স কার্ড"
+    },
+    {
+      "en": "Oden",
+      "bn": "ওদেন"
+    },
+    {
+      "en": "Abbreviations",
+      "bn": "সংক্ষিপ্ত রূপ"
+    },
+    {
+      "en": "Mosquitoes",
+      "bn": "মশা"
+    }
+  ],
+  "script": "Katakana"
 }

@@ -62,33 +62,51 @@
   "kanji": [
     {
       "char": "～年",
-      "reading": "",
-      "bn": ""
+      "reading": "ねん",
+      "bn": "…বছর"
     },
     {
       "char": "～月",
-      "reading": "",
-      "bn": ""
+      "reading": "がつ",
+      "bn": "…মাস"
     },
     {
       "char": "～日",
-      "reading": "",
-      "bn": ""
+      "reading": "にち / か",
+      "bn": "…তারিখ / দিন"
     },
     {
       "char": "今日",
-      "reading": "",
-      "bn": ""
+      "reading": "きょう",
+      "bn": "আজ"
     },
     {
       "char": "今週",
-      "reading": "",
-      "bn": ""
+      "reading": "こんしゅう",
+      "bn": "এই সপ্তাহ"
     },
     {
       "char": "今度",
-      "reading": "",
-      "bn": ""
+      "reading": "こんど",
+      "bn": "এবার / পরের বার"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Summer festival",
+      "bn": "গ্রীষ্মকালীন উৎসব"
+    },
+    {
+      "en": "Japanese mountains",
+      "bn": "জাপানের পাহাড়"
+    },
+    {
+      "en": "The “Otoko wa Tsurai yo” series",
+      "bn": "「男はつらいよ」সিরিজ"
+    },
+    {
+      "en": "Karate",
+      "bn": "ক্যারাটে"
     }
   ]
 }

@@ -52,38 +52,64 @@
   "kanji": [
     {
       "char": "大きい",
-      "reading": "",
-      "bn": ""
+      "reading": "おおきい",
+      "bn": "বড়"
     },
     {
       "char": "小さい",
-      "reading": "",
-      "bn": ""
+      "reading": "ちいさい",
+      "bn": "ছোট"
     },
     {
       "char": "高い",
-      "reading": "",
-      "bn": ""
+      "reading": "たかい",
+      "bn": "উঁচু / দামি"
     },
     {
       "char": "低い",
-      "reading": "",
-      "bn": ""
+      "reading": "ひくい",
+      "bn": "নিচু"
     },
     {
       "char": "前",
-      "reading": "",
-      "bn": ""
+      "reading": "まえ",
+      "bn": "সামনে"
     },
     {
       "char": "後ろ",
-      "reading": "",
-      "bn": ""
+      "reading": "うしろ",
+      "bn": "পিছনে"
     },
     {
       "char": "横",
-      "reading": "",
-      "bn": ""
+      "reading": "よこ",
+      "bn": "পাশে"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Coin lockers",
+      "bn": "কয়েন লকার"
+    },
+    {
+      "en": "Vending machines",
+      "bn": "ভেন্ডিং মেশিন"
+    },
+    {
+      "en": "ATM",
+      "bn": "এটিএম"
+    },
+    {
+      "en": "The rivers of Japan",
+      "bn": "জাপানের নদী"
+    },
+    {
+      "en": "High-rise buildings in Japan",
+      "bn": "জাপানের উঁচু ভবন"
+    },
+    {
+      "en": "Wabi-sabi",
+      "bn": "ওয়াবি-সাবি"
     }
   ]
 }

@@ -73,43 +73,53 @@
   "kanji": [
     {
       "char": "東",
-      "reading": "",
-      "bn": ""
+      "reading": "ひがし",
+      "bn": "পূর্ব"
     },
     {
       "char": "西",
-      "reading": "",
-      "bn": ""
+      "reading": "にし",
+      "bn": "পশ্চিম"
     },
     {
       "char": "南",
-      "reading": "",
-      "bn": ""
+      "reading": "みなみ",
+      "bn": "দক্ষিণ"
     },
     {
       "char": "北",
-      "reading": "",
-      "bn": ""
+      "reading": "きた",
+      "bn": "উত্তর"
     },
     {
       "char": "会社",
-      "reading": "",
-      "bn": ""
+      "reading": "かいしゃ",
+      "bn": "কোম্পানি / অফিস"
     },
     {
       "char": "来ます",
-      "reading": "",
-      "bn": ""
+      "reading": "きます",
+      "bn": "আসি"
     },
     {
       "char": "行きます",
-      "reading": "",
-      "bn": ""
+      "reading": "いきます",
+      "bn": "যাই"
     },
     {
       "char": "乗ります",
-      "reading": "",
-      "bn": ""
+      "reading": "のります",
+      "bn": "(যানে) চড়ি"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Commuting to work",
+      "bn": "কাজে যাতায়াত"
+    },
+    {
+      "en": "Taking public transport",
+      "bn": "গণপরিবহন ব্যবহার"
     }
   ]
 }

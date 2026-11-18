@@ -41,55 +41,69 @@
   "grammar": [
     {
       "pattern": "V-てください / V-て / V-てくれる？",
-      "example": "ちょっと、手伝ってください。 / 窓、閉めてくれる？",
+      "example": "ちょっと、手伝ってください。 / そこのドライバー、取って。 / 窓、閉めてくれる？",
       "meaningBn": ""
     },
     {
-      "pattern": "Nですね (Confirmation)",
-      "example": "B：はい、30ですね。",
+      "pattern": "Nですね <Confirmation>",
+      "example": "A：これ、コピー、30枚お願い。 / B：はい、30ですね。",
       "meaningBn": ""
     },
     {
       "pattern": "N、貸してください / N、借りてもいいですか？ / N、いいですか？ / N、ありますか？",
-      "example": "ホチキス、貸してください。 / スマホの充電器、ありますか？",
+      "example": "ホチキス、貸してください。 / すみません。借りてもいいですか？ / これ、いいですか？ / スマホの充電器、ありますか？",
       "meaningBn": ""
     }
   ],
   "kanji": [
     {
       "char": "朝",
-      "reading": "",
-      "bn": ""
+      "reading": "あさ",
+      "bn": "সকাল"
     },
     {
       "char": "昼",
-      "reading": "",
-      "bn": ""
+      "reading": "ひる",
+      "bn": "দুপুর"
     },
     {
       "char": "夜",
-      "reading": "",
-      "bn": ""
+      "reading": "よる",
+      "bn": "রাত"
     },
     {
       "char": "～時",
-      "reading": "",
-      "bn": ""
+      "reading": "じ",
+      "bn": "…টা (সময়)"
     },
     {
       "char": "～分",
-      "reading": "",
-      "bn": ""
+      "reading": "ふん / ぷん",
+      "bn": "…মিনিট"
     },
     {
       "char": "～半",
-      "reading": "",
-      "bn": ""
+      "reading": "はん",
+      "bn": "আধা / সাড়ে"
     },
     {
       "char": "～枚",
-      "reading": "",
-      "bn": ""
+      "reading": "まい",
+      "bn": "…টি (পাতলা জিনিস গোনার একক)"
+    }
+  ],
+  "tips": [
+    {
+      "en": "English-sounding words or phrases created in Japan",
+      "bn": "জাপানে তৈরি ইংরেজি-শোনা শব্দ বা বাক্যাংশ"
+    },
+    {
+      "en": "Charging a smartphone",
+      "bn": "স্মার্টফোন চার্জ করা"
+    },
+    {
+      "en": "24-hour clock",
+      "bn": "২৪ ঘণ্টার ঘড়ি"
     }
   ]
 }

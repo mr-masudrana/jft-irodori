@@ -428,5 +428,19 @@
       "reading": "わたし",
       "bn": "আমি"
     }
+  ],
+  "tips": [
+    {
+      "en": "Japanese characters",
+      "bn": "জাপানি বর্ণমালা"
+    },
+    {
+      "en": "How to call someone",
+      "bn": "কাউকে কীভাবে সম্বোধন করবেন"
+    },
+    {
+      "en": "Japanese era names",
+      "bn": "জাপানি যুগের নাম"
+    }
   ]
 }

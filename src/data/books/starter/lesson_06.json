@@ -50,8 +50,8 @@
       "meaningBn": ""
     },
     {
-      "pattern": "N、【number】お願いします",
-      "example": "生ビール3つと、ウーロン茶1つ、お願いします。",
+      "pattern": "N、【number】お願いします / N、【number】ください",
+      "example": "生ビール3つと、ウーロン茶1つ、お願いします。 / 枝豆2つ、ください。",
       "meaningBn": ""
     },
     {
@@ -63,18 +63,48 @@
   "kanji": [
     {
       "char": "魚",
-      "reading": "",
-      "bn": ""
+      "reading": "さかな",
+      "bn": "মাছ"
     },
     {
       "char": "肉",
-      "reading": "",
-      "bn": ""
+      "reading": "にく",
+      "bn": "মাংস"
     },
     {
       "char": "好き(な)",
-      "reading": "",
-      "bn": ""
+      "reading": "すき(な)",
+      "bn": "পছন্দ"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Japanese burger restaurants",
+      "bn": "জাপানি বার্গার রেস্তোরাঁ"
+    },
+    {
+      "en": "Meal tickets",
+      "bn": "মিল টিকিট"
+    },
+    {
+      "en": "Izakaya (Japanese-style pubs)",
+      "bn": "ইজাকায়া (জাপানি ধাঁচের পাব)"
+    },
+    {
+      "en": "Karaage",
+      "bn": "কারাগে (জাপানি ভাজা মুরগি)"
+    },
+    {
+      "en": "Otsumami",
+      "bn": "ওৎসুমামি (পানীয়ের সাথে হালকা খাবার)"
+    },
+    {
+      "en": "Beer",
+      "bn": "বিয়ার"
+    },
+    {
+      "en": "Oshibori and water",
+      "bn": "ওশিবোরি (গরম/ঠান্ডা তোয়ালে) ও পানি"
     }
   ]
 }

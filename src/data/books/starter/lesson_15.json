@@ -41,45 +41,67 @@
   "grammar": [
     {
       "pattern": "Nがほしいんですが",
-      "example": "電池がほしいんですが、どこで買えますか？",
+      "example": "電池がほしいんですが、どこで買えますか？ / 延長コードがほしいんですが…。",
       "meaningBn": ""
     },
     {
       "pattern": "ナA-ですね / イA-いですね / ナA！ / イA-い！",
-      "example": "このコート、おしゃれですね。 / このバッグ、かわいい！",
+      "example": "このコート、おしゃれですね。 / この傘、おもしろいですね。 / このコート、すてき！ / このバッグ、かわいい！",
       "meaningBn": ""
     }
   ],
   "kanji": [
     {
       "char": "入口",
-      "reading": "",
-      "bn": ""
+      "reading": "いりぐち",
+      "bn": "প্রবেশপথ"
     },
     {
       "char": "出口",
-      "reading": "",
-      "bn": ""
+      "reading": "でぐち",
+      "bn": "বের হওয়ার পথ"
     },
     {
       "char": "～階",
-      "reading": "",
-      "bn": ""
+      "reading": "かい",
+      "bn": "…তলা"
     },
     {
       "char": "押す",
-      "reading": "",
-      "bn": ""
+      "reading": "おす",
+      "bn": "ঠেলা / চাপ দেওয়া"
     },
     {
       "char": "引く",
-      "reading": "",
-      "bn": ""
+      "reading": "ひく",
+      "bn": "টানা"
     },
     {
       "char": "安い",
-      "reading": "",
-      "bn": ""
+      "reading": "やすい",
+      "bn": "সস্তা"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Types of Japanese store",
+      "bn": "জাপানি দোকানের ধরন"
+    },
+    {
+      "en": "Counting the floors of a building",
+      "bn": "ভবনের তলা গণনা"
+    },
+    {
+      "en": "Umbrellas",
+      "bn": "ছাতা"
+    },
+    {
+      "en": "Words for “toilet”",
+      "bn": "“টয়লেট”-এর বিভিন্ন শব্দ"
+    },
+    {
+      "en": "Elevator buttons",
+      "bn": "লিফটের বোতাম"
     }
   ]
 }

@@ -15,13 +15,14 @@ const TABS = [
   ['home', Home, 'হোম'],
   ['vocab', Languages, 'ভোকাবুলারি'],
   ['review', Repeat, 'রিভিউ'],
+  ['exam', ClipboardCheck, 'মক টেস্ট'],
   ['more', LayoutGrid, 'মোর'],
 ];
 
-// 'study' = হোমের ভোকাবুলারি/গ্রামার/কান্জি → লেসন তালিকা; 'books' = লেসন পেজ; 'exam'/'progress' = মোর-এর ভেতরের পেজ
-const TAB_IDS = ['home', 'vocab', 'review', 'more', 'study', 'books', 'exam', 'progress'];
-const ROOT_TABS = ['home', 'vocab', 'review', 'more'];
-const NAV_OF = { study: 'home', books: 'home', exam: 'more', progress: 'more' };
+// 'study' = হোমে বই-ভিত্তিক ভোকাবুলারি/গ্রামার/কান্জি → লেসন তালিকা; 'books' = লেসন পেজ; 'progress' = মোর-এর ভেতরের পেজ
+const TAB_IDS = ['home', 'vocab', 'review', 'exam', 'more', 'study', 'books', 'progress'];
+const ROOT_TABS = ['home', 'vocab', 'review', 'exam', 'more'];
+const NAV_OF = { study: 'home', books: 'home', progress: 'more' };
 const CATS = {
   vocab: { label: 'ভোকাবুলারি', glyph: '語' },
   grammar: { label: 'গ্রামার', glyph: '文' },
@@ -40,14 +41,14 @@ function parseHash() {
   const p = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const tab = TAB_IDS.includes(p[0]) ? p[0] : 'home';
   const r = { tab, bookId: null, lessonId: null, sec: null, mode: null, cat: null };
-  if (tab === 'study') r.cat = CATS[p[1]] ? p[1] : 'vocab';
+  if (tab === 'study') { r.cat = CATS[p[1]] ? p[1] : 'vocab'; r.bookId = p[2] || null; }
   if (tab === 'books') {
     r.bookId = p[1] || null;
     r.lessonId = r.bookId ? p[2] || null : null;
     const x = r.lessonId ? p[3] : null;
     if (x === 'quiz' || x === 'review') r.mode = x;
     else if (/^a\d+$/.test(x || '')) r.sec = Number(x.slice(1));
-    else if (['vocab', 'grammar', 'kanji', 'dialogues'].includes(x)) r.sec = x;
+    else if (['vocab', 'grammar', 'kanji', 'dialogues', 'tips'].includes(x)) r.sec = x;
   }
   return r;
 }
@@ -55,7 +56,7 @@ function parseHash() {
 const toHash = ({ tab, bookId, lessonId, sec, mode, cat }) => {
   const seg = tab === 'books'
     ? [bookId, bookId && lessonId, bookId && lessonId && (mode || (sec === null ? null : typeof sec === 'number' ? `a${sec}` : sec))]
-    : tab === 'study' ? [cat] : [];
+    : tab === 'study' ? [cat, bookId] : [];
   return '#/' + [tab, ...seg].filter((x) => x !== null && x !== undefined && x !== false && x !== '').map(encodeURIComponent).join('/');
 };
 const depth = () => window.history.state?.n || 0;
@@ -137,7 +138,7 @@ export default function App() {
   const due = cards.filter((c) => isDue(state, c)).length;
   const top = () => window.scrollTo({ top: 0 });
   const go = (t) => { setTab(t); setBookId(null); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
-  const openStudy = (c) => { setTab('study'); setCat(c); setBookId(null); setLessonId(null); setSec(null); setMode(null); top(); };
+  const openStudy = (c, bId) => { setTab('study'); setCat(c); setBookId(bId || null); setLessonId(null); setSec(null); setMode(null); top(); };
   const openBook = (id) => { setTab('books'); setBookId(id); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
   const openLesson = (bId, lId) => {
     setTab('books'); setBookId(bId); setLessonId(lId); setSec(null); setMode(null); setCat(null); setHide(false);
@@ -146,7 +147,8 @@ export default function App() {
   };
   const back = () => {
     if (depth() > 0) { window.history.back(); return; }
-    if (mode) setMode(null);
+    if (tab === 'study') go('home');
+    else if (mode) setMode(null);
     else if (sec !== null) setSec(null);
     else if (lessonId) setLessonId(null);
     else if (bookId) setBookId(null);
@@ -165,7 +167,7 @@ export default function App() {
   const title = tab === 'home' ? 'Irodori JFT-Basic'
     : tab === 'vocab' ? 'ভোকাবুলারি'
     : tab === 'more' ? 'মোর'
-    : tab === 'study' ? `${CATS[cat]?.label || 'লেসন'} • লেসন বেছে নিন`
+    : tab === 'study' ? `${book ? book.title + ' • ' : ''}${CATS[cat]?.label || 'লেসন'}`
     : tab === 'review' ? 'আজকের রিভিউ'
     : tab === 'exam' ? 'JFT Mock Exam'
     : tab === 'progress' ? 'প্রগ্রেস ও স্ট্যাটস'
@@ -174,7 +176,7 @@ export default function App() {
     : lesson ? (
       sec === null ? `Lesson ${lesson.lessonNumber}`
       : typeof sec === 'number' ? `L${lesson.lessonNumber} • অ্যাক্টিভিটি ${sec + 1}`
-      : { vocab: 'ভোকাবুলারি', grammar: 'গ্রামার', kanji: 'কান্জি', dialogues: 'কথোপকথন' }[sec]
+      : { vocab: 'ভোকাবুলারি', grammar: 'গ্রামার', kanji: 'কান্জি', dialogues: 'কথোপকথন', tips: 'জাপানে জীবনের টিপস' }[sec]
     )
     : book ? book.title : 'Irodori বইসমূহ';
 
@@ -262,12 +264,14 @@ export default function App() {
     const doneAct = lessonDone(lesson);
     const totalAct = lesson.activities.length;
     const pct = totalAct ? Math.round((doneAct / totalAct) * 100) : 0;
+    // ফাঁকা সেকশন (যেমন লেসন ১-২-এ গ্রামার ও কান্জি নেই) দেখানো হয় না
     const rows = [
-      ['vocab', '📚', 'ভোকাবুলারি', lesson.vocabulary.length],
+      ['dialogues', '🎧', 'কথোপকথন', lesson.dialogues.length],
+      ['vocab', '📚', lesson.script ? `ভোকাবুলারি (${lesson.script})` : 'ভোকাবুলারি', lesson.vocabulary.length],
       ['grammar', '🧩', 'গ্রামার', lesson.grammar.length],
       ['kanji', '🈶', 'কান্জি', lesson.kanji.length],
-    ];
-    if (lesson.dialogues.length) rows.unshift(['dialogues', '🎧', 'কথোপকথন', lesson.dialogues.length]);
+      ['tips', '💡', 'জাপানে জীবনের টিপস', (lesson.tips || []).length],
+    ].filter((r) => r[3] > 0);
 
     return (
       <div className="space-y-5 view">
@@ -425,10 +429,29 @@ export default function App() {
           </>
         )}
 
+        {sec === 'tips' && list.length > 0 && (
+          <div className="card space-y-3.5">
+            <p className="t-mu text-xs">Tips for life in Japan — জাপানের জীবন ও সংস্কৃতির টপিক</p>
+            {list.map((t, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ background: 'var(--shu)' }} />
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm leading-snug">{t.en}</p>
+                  {t.bn && <p className="t-mu text-[13px] mt-0.5 leading-snug">{t.bn}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {sec === 'grammar' && list.map((g, i) => (
           <div key={i} className="card space-y-2.5">
             <span className="chip jp">{g.pattern}</span>
-            <p className="font-semibold text-sm rounded-xl p-3 chip-b jp leading-relaxed">{g.example}</p>
+            <div className="rounded-xl p-3 chip-b space-y-1">
+              {(g.example || '').split(' / ').map((ex, j) => (
+                <p key={j} className="font-semibold text-sm jp leading-relaxed">{ex}</p>
+              ))}
+            </div>
             <p className="t-mu text-xs leading-relaxed">
               {g.meaningBn || 'ব্যাখ্যা পরবর্তীতে যুক্ত করা হবে।'}
             </p>
@@ -454,20 +477,21 @@ export default function App() {
   const StudyList = () => {
     const c = CATS[cat];
     if (!c) return <div className="view">{Empty()}</div>;
-    const total = booksData.reduce((n, b) => n + b.lessons.reduce((m, l) => m + (l[cat] || []).length, 0), 0);
+    const shown = book ? [book] : booksData;
+    const total = shown.reduce((n, b) => n + b.lessons.reduce((m, l) => m + (l[cat] || []).length, 0), 0);
     return (
       <div className="space-y-4 view">
         <div className="card flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center jp-display text-2xl shrink-0">{c.glyph}</div>
           <div className="flex-1 min-w-0">
             <p className="font-bold">{c.label}</p>
-            <p className="t-mu text-xs">সব লেসন মিলিয়ে {total}টি • একটি লেসন বেছে নিন</p>
+            <p className="t-mu text-xs">{book ? book.title : 'সব বই'} • {total}টি • একটি লেসন বেছে নিন</p>
           </div>
         </div>
-        {booksData.map((b) => (
+        {shown.map((b) => (
           <div key={b.id} className="space-y-2.5">
             <h3 className="text-[13px] font-semibold t-mu px-1 jp">{b.title} • {b.jpTitle}</h3>
-            {b.lessons.map((l) => {
+            {b.lessons.filter((l) => (l[cat] || []).length > 0).map((l) => {
               const n = (l[cat] || []).length;
               return (
                 <div
@@ -496,9 +520,8 @@ export default function App() {
   const More = () => (
     <div className="space-y-4 view">
       <div className="space-y-2.5">
-        <h3 className="text-[13px] font-semibold t-mu px-1">অনুশীলন ও অগ্রগতি</h3>
+        <h3 className="text-[13px] font-semibold t-mu px-1">অগ্রগতি</h3>
         {[
-          ['exam', ClipboardCheck, 'JFT-Basic মক টেস্ট', '২৫০ নম্বর • পাস মার্ক ২০০ • টাইমারসহ'],
           ['progress', BarChart3, 'প্রগ্রেস ও স্ট্যাটস', 'স্ট্রিক, XP, সাপ্তাহিক চার্ট ও মক টেস্টের ইতিহাস'],
         ].map(([id, I, label, desc]) => (
           <div
@@ -543,7 +566,7 @@ export default function App() {
         <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><Info className="w-6 h-6" /></div>
         <div className="min-w-0">
           <p className="font-bold text-[15px]">Irodori JFT-Basic</p>
-          <p className="t-mu text-xs mt-0.5">সংস্করণ 4.2 • ডেটা শুধু আপনার ডিভাইসে সেভ থাকে</p>
+          <p className="t-mu text-xs mt-0.5">সংস্করণ 4.4 • ডেটা শুধু আপনার ডিভাইসে সেভ থাকে</p>
         </div>
       </div>
     </div>
@@ -661,7 +684,7 @@ export default function App() {
               [<Star key="s" className="w-4 h-4 mx-auto text-yellow-200" />, st.xp, 'মোট XP'],
               [<Repeat key="r" className="w-4 h-4 mx-auto text-indigo-100" />, due, 'রিভিউ বাকি'],
             ].map(([ic, v, l]) => (
-              <div key={l} className="rounded-2xl py-2.5 px-1.5 bg-white/12 border border-white/15" style={{ background: 'rgb(255 255 255 / 0.12)' }}>
+              <div key={l} className="rounded-2xl py-2.5 px-1.5 border border-white/15" style={{ background: 'rgb(255 255 255 / 0.12)' }}>
                 {ic}
                 <b className="text-lg block mt-0.5 tabular-nums leading-tight">{v}</b>
                 <span className="text-[11px] opacity-85">{l}</span>
@@ -693,38 +716,59 @@ export default function App() {
           </div>
         )}
 
-        <div onClick={() => go('exam')} className="card card-tap flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl btn-p grid place-items-center shrink-0">
-            <ClipboardCheck className="w-6 h-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="font-bold text-base">JFT-Basic Mock Test</p>
-              <span className="chip">CBT</span>
-            </div>
-            <p className="t-mu text-xs mt-0.5">২৫০ নম্বর • পাস মার্ক ২০০ • টাইমারসহ</p>
-          </div>
-          <ChevronRight className="w-5 h-5 t-mu shrink-0" />
+        <div className="flex items-center justify-between px-1 -mb-2">
+          <h3 className="text-[13px] font-semibold t-mu">Irodori পাঠ্যবই</h3>
+          <button onClick={() => go('books')} className="text-xs font-bold t-br py-1">সব লেসন</button>
         </div>
 
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-[13px] font-semibold t-mu">Irodori পাঠ্যবই</h3>
-            <button onClick={() => go('books')} className="text-xs font-bold t-br py-1">সব লেসন</button>
-          </div>
-          <div className="grid grid-cols-3 gap-2.5">
-            {Object.entries(CATS).map(([id, c]) => {
-              const n = booksData.reduce((t, b) => t + b.lessons.reduce((m, l) => m + (l[id] || []).length, 0), 0);
-              return (
-                <button key={id} onClick={() => openStudy(id)} className="card card-tap !p-3.5 text-center space-y-2">
-                  <div className="w-12 h-12 mx-auto rounded-2xl chip-b grid place-items-center jp-display text-2xl">{c.glyph}</div>
-                  <p className="font-bold text-sm">{c.label}</p>
-                  <p className="t-mu text-[11px] tabular-nums -mt-1">{n}টি</p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {booksData.map((b) => {
+          const pct = bookPct(b);
+          return (
+            <section key={b.id} className="card space-y-3.5">
+              <div
+                onClick={() => openBook(b.id)}
+                onKeyDown={(e) => { if (e.key === 'Enter') openBook(b.id); }}
+                role="button" tabIndex={0}
+                className="flex items-center gap-3.5 cursor-pointer"
+              >
+                <div className={`w-12 h-12 rounded-2xl text-white grid place-items-center font-extrabold text-base shadow-sm shrink-0 ${b.iconBg}`}>
+                  {b.id === 'starter' ? 'A1' : 'A2'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-bold text-base">{b.title}</p>
+                    <span className="chip">{b.level}</span>
+                  </div>
+                  <p className="t-mu text-xs mt-0.5 jp">{b.jpTitle} • {b.lessons.length}/{b.totalLessons} লেসন</p>
+                </div>
+                <ChevronRight className="w-5 h-5 t-mu shrink-0" />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="bar flex-1"><i style={{ width: `${pct}%` }} /></div>
+                <span className="t-br text-xs font-extrabold tabular-nums">{pct}%</span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2.5">
+                {Object.entries(CATS).map(([id, c]) => {
+                  const n = b.lessons.reduce((m, l) => m + (l[id] || []).length, 0);
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => openStudy(id, b.id)}
+                      className="rounded-2xl p-3 text-center space-y-1.5 active:scale-[0.97] transition"
+                      style={{ background: 'var(--sf2)' }}
+                    >
+                      <div className="w-11 h-11 mx-auto rounded-xl chip-b grid place-items-center jp-display text-xl">{c.glyph}</div>
+                      <p className="font-bold text-[13px]">{c.label}</p>
+                      <p className="t-mu text-[11px] tabular-nums -mt-0.5">{n}টি</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
       </div>
     );
   } else if (tab === 'books') {

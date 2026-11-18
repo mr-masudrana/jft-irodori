@@ -52,43 +52,57 @@
   "kanji": [
     {
       "char": "月",
-      "reading": "",
-      "bn": ""
+      "reading": "げつ",
+      "bn": "সোম (月曜日)"
     },
     {
       "char": "火",
-      "reading": "",
-      "bn": ""
+      "reading": "か",
+      "bn": "মঙ্গল (火曜日)"
     },
     {
       "char": "水",
-      "reading": "",
-      "bn": ""
+      "reading": "すい",
+      "bn": "বুধ (水曜日)"
     },
     {
       "char": "木",
-      "reading": "",
-      "bn": ""
+      "reading": "もく",
+      "bn": "বৃহস্পতি (木曜日)"
     },
     {
       "char": "金",
-      "reading": "",
-      "bn": ""
+      "reading": "きん",
+      "bn": "শুক্র (金曜日)"
     },
     {
       "char": "土",
-      "reading": "",
-      "bn": ""
+      "reading": "ど",
+      "bn": "শনি (土曜日)"
     },
     {
       "char": "日",
-      "reading": "",
-      "bn": ""
+      "reading": "にち",
+      "bn": "রবি (日曜日)"
     },
     {
       "char": "～曜日",
-      "reading": "",
-      "bn": ""
+      "reading": "ようび",
+      "bn": "…বার (সপ্তাহের দিন)"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Morning assembly",
+      "bn": "সকালের সমাবেশ"
+    },
+    {
+      "en": "Public pools",
+      "bn": "পাবলিক সুইমিংপুল"
+    },
+    {
+      "en": "Watching a film",
+      "bn": "সিনেমা দেখা"
     }
   ]
 }

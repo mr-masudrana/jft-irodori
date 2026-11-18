@@ -58,53 +58,83 @@
   "kanji": [
     {
       "char": "一",
-      "reading": "",
-      "bn": ""
+      "reading": "いち",
+      "bn": "১"
     },
     {
       "char": "二",
-      "reading": "",
-      "bn": ""
+      "reading": "に",
+      "bn": "২"
     },
     {
       "char": "三",
-      "reading": "",
-      "bn": ""
+      "reading": "さん",
+      "bn": "৩"
     },
     {
       "char": "四",
-      "reading": "",
-      "bn": ""
+      "reading": "し / よん",
+      "bn": "৪"
     },
     {
       "char": "五",
-      "reading": "",
-      "bn": ""
+      "reading": "ご",
+      "bn": "৫"
     },
     {
       "char": "六",
-      "reading": "",
-      "bn": ""
+      "reading": "ろく",
+      "bn": "৬"
     },
     {
       "char": "七",
-      "reading": "",
-      "bn": ""
+      "reading": "しち / なな",
+      "bn": "৭"
     },
     {
       "char": "八",
-      "reading": "",
-      "bn": ""
+      "reading": "はち",
+      "bn": "৮"
     },
     {
       "char": "九",
-      "reading": "",
-      "bn": ""
+      "reading": "きゅう",
+      "bn": "৯"
     },
     {
       "char": "十",
-      "reading": "",
-      "bn": ""
+      "reading": "じゅう",
+      "bn": "১০"
+    }
+  ],
+  "tips": [
+    {
+      "en": "Japanese bills and coins",
+      "bn": "জাপানি নোট ও কয়েন"
+    },
+    {
+      "en": "Asking for the price",
+      "bn": "দাম জিজ্ঞেস করা"
+    },
+    {
+      "en": "Maneki-neko",
+      "bn": "মানেকি-নেকো"
+    },
+    {
+      "en": "Taiyaki",
+      "bn": "তাইয়াকি"
+    },
+    {
+      "en": "Korokke",
+      "bn": "কোরোক্কে"
+    },
+    {
+      "en": "Onigiri",
+      "bn": "ওনিগিরি"
+    },
+    {
+      "en": "Electronic payment",
+      "bn": "ইলেকট্রনিক পেমেন্ট"
     }
   ]
 }
