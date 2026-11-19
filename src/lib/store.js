@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import booksData from '../data/books';
 
 const KEY = 'jft_irodori_v4';
-const DEF = { canDos: {}, srs: {}, srsV: 0, quizXp: {}, history: [], resume: null, stats: { xp: 0, streak: 0, last: 0, days: {} } };
+const DEF = { canDos: {}, srs: {}, srsV: 0, quizXp: {}, history: [], topicTests: {}, resume: null, stats: { xp: 0, streak: 0, last: 0, days: {} } };
 export const DAILY_GOAL = 20; // দিনে ২০ XP-র লক্ষ্য
 export const dayNum = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 864e5);
 const shape = (s) => ({ ...DEF, ...s, stats: { ...DEF.stats, ...(s?.stats || {}) } });

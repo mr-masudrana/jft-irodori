@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import {
   Home, BookOpen, Repeat, ClipboardCheck, ArrowLeft, Flame, Star, ChevronRight,
   CheckCircle2, Circle, Eye, EyeOff, Brain, PenLine, Sun, Moon, Search, Sparkles, Trophy, X, Play, Languages, LayoutGrid, Palette, Info,
-  Headphones, Library, Puzzle, PenTool, Lightbulb,
+  Headphones, Library, Puzzle, PenTool, Lightbulb, Lock, ChevronDown, RotateCcw,
 } from 'lucide-react';
 import booksData from './data/books';
 import AudioPlayer from './components/AudioPlayer';
 import MockTest from './components/MockTest';
 import VocabTab from './components/VocabTab';
+import TopicTest from './components/TopicTest';
+import { getTopics, isTopicUnlocked, topicResult, PASS_PCT, TEST_SIZE } from './lib/topics';
 import { Review, Quiz } from './components/Review';
 import { useStore, addXp, liveStreak, cards, isDue, dayNum, DAILY_GOAL, todayXp, setResume, speakJa, jaVoiceStatus } from './lib/store';
 
@@ -39,11 +41,12 @@ const BN_DAYS = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'ব�
 function parseHash() {
   const p = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const tab = TAB_IDS.includes(p[0]) ? p[0] : 'home';
-  const r = { tab, bookId: null, lessonId: null, sec: null, mode: null, cat: null };
+  const r = { tab, bookId: null, lessonId: null, sec: null, mode: null, cat: null, test: null };
   if (tab === 'study') { r.cat = CATS[p[1]] ? p[1] : 'vocab'; r.bookId = p[2] || null; }
   if (tab === 'books') {
     r.bookId = p[1] || null;
-    r.lessonId = r.bookId ? p[2] || null : null;
+    if (r.bookId && p[2] === 'test' && /^\d+$/.test(p[3] || '')) r.test = Number(p[3]);
+    r.lessonId = r.bookId && r.test === null ? p[2] || null : null;
     const x = r.lessonId ? p[3] : null;
     if (x === 'quiz' || x === 'review') r.mode = x;
     else if (/^a\d+$/.test(x || '')) r.sec = Number(x.slice(1));
@@ -52,8 +55,10 @@ function parseHash() {
   return r;
 }
 
-const toHash = ({ tab, bookId, lessonId, sec, mode, cat }) => {
-  const seg = tab === 'books'
+const toHash = ({ tab, bookId, lessonId, sec, mode, cat, test }) => {
+  const seg = tab === 'books' && bookId && test !== null && test !== undefined
+    ? [bookId, 'test', test]
+    : tab === 'books'
     ? [bookId, bookId && lessonId, bookId && lessonId && (mode || (sec === null ? null : typeof sec === 'number' ? `a${sec}` : sec))]
     : tab === 'study' ? [cat, bookId] : [];
   return '#/' + [tab, ...seg].filter((x) => x !== null && x !== undefined && x !== false && x !== '').map(encodeURIComponent).join('/');
@@ -95,6 +100,8 @@ export default function App() {
   const [hide, setHide] = useState(false);
   const [sec, setSec] = useState(init.sec);
   const [cat, setCat] = useState(init.cat);
+  const [test, setTest] = useState(init.test);
+  const [openT, setOpenT] = useState({}); // টপিক ড্রপডাউন খোলা/বন্ধ
   const [q, setQ] = useState('');
   const [dark, setDark] = useState(() => {
     let saved = null;
@@ -126,19 +133,19 @@ export default function App() {
 
   const first = React.useRef(true);
   useEffect(() => {
-    const h = toHash({ tab, bookId, lessonId, sec, mode, cat });
+    const h = toHash({ tab, bookId, lessonId, sec, mode, cat, test });
     if (first.current) {
       first.current = false;
       if (location.hash !== h) window.history.replaceState({ n: depth() }, '', h);
     } else if (location.hash !== h) {
       window.history.pushState({ n: depth() + 1 }, '', h);
     }
-  }, [tab, bookId, lessonId, sec, mode, cat]);
+  }, [tab, bookId, lessonId, sec, mode, cat, test]);
 
   useEffect(() => {
     const onPop = () => {
       const r = parseHash();
-      setTab(r.tab); setBookId(r.bookId); setLessonId(r.lessonId); setSec(r.sec); setMode(r.mode); setCat(r.cat);
+      setTab(r.tab); setBookId(r.bookId); setLessonId(r.lessonId); setSec(r.sec); setMode(r.mode); setCat(r.cat); setTest(r.test);
       window.scrollTo({ top: 0 });
     };
     window.addEventListener('popstate', onPop);
@@ -148,17 +155,19 @@ export default function App() {
   const st = state.stats;
   const due = cards.filter((c) => isDue(state, c)).length;
   const top = () => window.scrollTo({ top: 0 });
-  const go = (t) => { setTab(t); setBookId(null); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
-  const openStudy = (c, bId) => { setTab('study'); setCat(c); setBookId(bId || null); setLessonId(null); setSec(null); setMode(null); top(); };
-  const openBook = (id) => { setTab('books'); setBookId(id); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
+  const go = (t) => { setTest(null); setTab(t); setBookId(null); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
+  const openStudy = (c, bId) => { setTest(null); setTab('study'); setCat(c); setBookId(bId || null); setLessonId(null); setSec(null); setMode(null); top(); };
+  const openBook = (id) => { setTest(null); setTab('books'); setBookId(id); setLessonId(null); setSec(null); setMode(null); setCat(null); top(); };
   const openLesson = (bId, lId) => {
-    setTab('books'); setBookId(bId); setLessonId(lId); setSec(null); setMode(null); setCat(null); setHide(false);
+    setTest(null); setTab('books'); setBookId(bId); setLessonId(lId); setSec(null); setMode(null); setCat(null); setHide(false);
     update((s) => setResume(s, bId, lId));
     top();
   };
+  const openTest = (bId, idx) => { setTab('books'); setBookId(bId); setLessonId(null); setSec(null); setMode(null); setCat(null); setTest(idx); top(); };
   const back = () => {
     if (depth() > 0) { window.history.back(); return; }
     if (tab === 'study') go('home');
+    else if (test !== null) setTest(null);
     else if (mode) setMode(null);
     else if (sec !== null) setSec(null);
     else if (lessonId) setLessonId(null);
@@ -180,6 +189,7 @@ export default function App() {
     : tab === 'more' ? 'মোর'
     : tab === 'study' ? `${book ? book.title + ' • ' : ''}${CATS[cat]?.label || 'লেসন'}`
     : tab === 'review' ? 'আজকের রিভিউ'
+    : tab === 'books' && test !== null && book ? 'টপিক টেস্ট'
     : tab === 'exam' ? 'JFT Mock Exam'
     : mode === 'quiz' ? 'শব্দ কুইজ'
     : mode === 'review' ? 'লেসন ফ্ল্যাশকার্ড'
@@ -486,7 +496,8 @@ export default function App() {
       );
     }
 
-    const list = lesson[sec] || [];
+    // ডেটা ফাইলে ভোকাবুলারির কী হলো `vocabulary` (সেকশন আইডি `vocab`)
+    const list = (sec === 'vocab' ? lesson.vocabulary : lesson[sec]) || [];
     const filteredVocab = sec === 'vocab' && q.trim()
       ? list.filter((w) =>
           [w.jp, w.kana, w.bn].some((v) => (v || '').toLowerCase().includes(q.trim().toLowerCase()))
@@ -820,6 +831,111 @@ export default function App() {
     );
   };
 
+  // বইয়ের লেসন পেজ: প্রতিটি টপিক ড্রপডাউন (২টি লেসন + টপিক টেস্ট); টেস্টে পাস করলে পরের টপিক আনলক
+  const TopicList = () => {
+    const topics = getTopics(book);
+    const unlockedAt = (i) => isTopicUnlocked(state, book, topics, i);
+    const passedAt = (i) => !!topicResult(state, book, topics[i])?.passed;
+    const cur = topics.findIndex((_, i) => unlockedAt(i) && !passedAt(i));
+    const curIdx = cur === -1 ? topics.length - 1 : cur;
+    const passedN = topics.filter((_, i) => passedAt(i)).length;
+
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1 pt-1">
+          <h3 className="text-[13px] font-semibold t-mu">টপিকসমূহ ({topics.length})</h3>
+          <span className="chip tabular-nums">টেস্ট পাস {passedN}/{topics.length}</span>
+        </div>
+
+        {topics.map((tp, i) => {
+          const unlocked = unlockedAt(i), res = topicResult(state, book, tp), passed = !!res?.passed;
+          const open = openT[`${book.id}:${i}`] ?? i === curIdx;
+          const doneA = tp.lessons.reduce((n, l) => n + lessonDone(l), 0);
+          const totA = tp.lessons.reduce((n, l) => n + l.activities.length, 0);
+          const range = tp.lessons.length > 1
+            ? `Lesson ${tp.lessons[0].lessonNumber}–${tp.lessons[tp.lessons.length - 1].lessonNumber}`
+            : `Lesson ${tp.lessons[0].lessonNumber}`;
+          return (
+            <div key={tp.name + i} className="card !p-0 overflow-hidden" style={!unlocked ? { opacity: 0.78 } : undefined}>
+              <button
+                onClick={() => setOpenT((o) => ({ ...o, [`${book.id}:${i}`]: !open }))}
+                aria-expanded={open}
+                className="w-full flex items-center gap-3.5 p-4 text-left"
+              >
+                {passed ? (
+                  <div className="hanko pop w-11 h-11 text-lg shrink-0" aria-label="টেস্টে পাস">合</div>
+                ) : !unlocked ? (
+                  <div className="w-11 h-11 rounded-2xl grid place-items-center shrink-0" style={{ background: 'var(--sf2)' }}><Lock className="w-5 h-5 t-mu" /></div>
+                ) : (
+                  <div className="w-11 h-11 rounded-2xl grid place-items-center font-extrabold text-sm shrink-0 chip-b">{i + 1}</div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm truncate">{tp.name}</p>
+                  <p className="t-mu text-xs truncate mt-0.5">
+                    {unlocked ? `${range} • অ্যাক্টিভিটি ${doneA}/${totA}` : 'আগের টপিকের টেস্টে পাস করলে আনলক হবে'}
+                  </p>
+                </div>
+                {passed && <span className="chip !bg-emerald-500/15 !text-emerald-600 dark:!text-emerald-400 tabular-nums">{res.best}%</span>}
+                <ChevronDown className="w-5 h-5 t-mu shrink-0 transition-transform duration-300" style={{ transform: open ? 'rotate(180deg)' : 'none' }} />
+              </button>
+
+              {open && (
+                <div className="px-3 pb-3 pt-1 space-y-2 border-t view" style={{ borderColor: 'var(--ln)' }}>
+                  {!unlocked ? (
+                    <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: 'var(--sf2)' }}>
+                      <Lock className="w-5 h-5 t-mu shrink-0 mt-0.5" />
+                      <p className="text-[13px] leading-relaxed t-mu">
+                        এই টপিক লক করা আছে। আগের টপিক <b>{topics[i - 1].name}</b>-এর টেস্টে কমপক্ষে {PASS_PCT}% নম্বর পেলে এটি আনলক হবে।
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {tp.lessons.map((l) => {
+                        const d = lessonDone(l), totalA = l.activities.length, all = totalA > 0 && d === totalA;
+                        return (
+                          <div key={l.id} onClick={() => openLesson(book.id, l.id)} className="card card-tap flex items-center gap-3.5 !p-3.5">
+                            {all ? (
+                              <div className="hanko pop w-11 h-11 text-lg shrink-0" aria-label="সম্পন্ন">済</div>
+                            ) : (
+                              <div className="w-11 h-11 rounded-2xl grid place-items-center font-extrabold text-sm shrink-0 chip-b">{l.lessonNumber}</div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-sm truncate">{l.title}</p>
+                              <p className="t-mu text-xs truncate mt-0.5">{l.titleBn}</p>
+                            </div>
+                            <span className="chip tabular-nums">{d}/{totalA}</span>
+                          </div>
+                        );
+                      })}
+
+                      <div
+                        onClick={() => openTest(book.id, i)} role="button" tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter') openTest(book.id, i); }}
+                        className="card card-tap flex items-center gap-3.5 !p-3.5"
+                        style={{ borderColor: 'color-mix(in srgb, var(--br) 35%, var(--ln))', background: 'color-mix(in srgb, var(--soft) 55%, var(--sf))' }}
+                      >
+                        <div className="w-11 h-11 rounded-2xl grid place-items-center shrink-0 text-white" style={{ background: 'linear-gradient(135deg, var(--br2), var(--br))' }}>
+                          {passed ? <CheckCircle2 className="w-5 h-5" /> : <ClipboardCheck className="w-5 h-5" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-sm">টপিক টেস্ট</p>
+                          <p className="t-mu text-xs mt-0.5">
+                            {res ? `সেরা স্কোর ${res.best}% • ${res.tries}বার দিয়েছেন` : `${TEST_SIZE}টি প্রশ্ন • পাস মার্ক ${PASS_PCT}%`}
+                          </p>
+                        </div>
+                        <span className="chip shrink-0">{passed ? <><RotateCcw className="w-3.5 h-3.5" /> আবার</> : 'শুরু করুন'}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const xpToday = todayXp(st);
   const resumeBook = booksData.find((b) => b.id === state.resume?.bookId);
   const resumeLesson = resumeBook?.lessons.find((l) => l.id === state.resume?.lessonId);
@@ -918,8 +1034,16 @@ export default function App() {
       </div>
     );
   } else if (tab === 'books') {
+    const bookTopics = book ? getTopics(book) : [];
+    const testTopic = test !== null ? bookTopics[test] : null;
+    const testOpen = !!testTopic && isTopicUnlocked(state, book, bookTopics, test);
     body = !book ? (
       <div className="view">{BookList()}</div>
+    ) : testOpen ? (
+      <TopicTest
+        key={`${book.id}-${test}`} book={book} topic={testTopic} nextTopic={bookTopics[test + 1]}
+        state={state} update={update} onExit={() => { setTest(null); top(); }}
+      />
     ) : !lesson ? (
       <div className="space-y-3 view">
         <div className="card flex items-center gap-3.5">
@@ -932,34 +1056,7 @@ export default function App() {
           </div>
         </div>
 
-        {book.lessons.map((l, idx) => {
-          const d = lessonDone(l), totalA = l.activities.length, all = totalA > 0 && d === totalA;
-          const newTopic = l.topic && l.topic !== book.lessons[idx - 1]?.topic;
-          return (
-            <React.Fragment key={l.id}>
-              {newTopic && (
-                <h3 className="text-xs font-bold t-br px-1 pt-2 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-current" /> {l.topic}
-                </h3>
-              )}
-              <div
-                onClick={() => openLesson(book.id, l.id)}
-                className="card card-tap flex items-center gap-3.5"
-              >
-                {all ? (
-                  <div className="hanko pop w-11 h-11 text-lg" aria-label="সম্পন্ন">済</div>
-                ) : (
-                  <div className="w-11 h-11 rounded-2xl grid place-items-center font-extrabold text-sm shrink-0 chip-b">{l.lessonNumber}</div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{l.title}</p>
-                  <p className="t-mu text-xs truncate mt-0.5">{l.titleBn}</p>
-                </div>
-                <span className="chip tabular-nums">{d}/{totalA}</span>
-              </div>
-            </React.Fragment>
-          );
-        })}
+        {TopicList()}
       </div>
     ) : mode === 'quiz' ? (
       <Quiz key={lesson.id} lesson={lesson} state={state} update={update} />
