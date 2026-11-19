@@ -19,6 +19,10 @@
   --soft: #e8ecfc;
   --deep: #17236b;
   --shadow: 0 1px 2px rgb(19 26 54 / 0.04), 0 8px 24px -12px rgb(19 26 54 / 0.12);
+  --shadow-lg: 0 2px 4px rgb(19 26 54 / 0.05), 0 18px 40px -16px rgb(19 26 54 / 0.22);
+  --br2: #5a73f0;
+  --r-sm: 12px; --r-md: 16px; --r-lg: 22px; --r-xl: 28px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: light;
 }
 
@@ -38,16 +42,23 @@
   --soft: rgba(143, 163, 255, 0.14);
   --deep: #1b2763;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.6);
+  --shadow-lg: 0 2px 4px rgb(0 0 0 / 0.35), 0 20px 44px -16px rgb(0 0 0 / 0.75);
+  --br2: #b3c0ff;
   color-scheme: dark;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+button, [role="button"], a { touch-action: manipulation; }
+::selection { background: color-mix(in srgb, var(--br) 28%, transparent); }
+h1, h2, h3 { letter-spacing: -0.01em; text-wrap: balance; }
+p { text-wrap: pretty; }
 
 body {
   font-family: 'Inter', 'Noto Sans Bengali', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--ink);
-  line-height: 1.5;
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
   padding-bottom: calc(104px + env(safe-area-inset-bottom));
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
@@ -330,6 +341,93 @@ button { -webkit-user-select: none; user-select: none; }
   }
 
   .view { animation: in 0.26s cubic-bezier(0.22, 1, 0.36, 1); }
+}
+
+
+/* ===== v5.3 — UI/UX রিফাইনমেন্ট: মসৃণ, আধুনিক, স্পর্শ-বান্ধব ===== */
+@layer components {
+  .card {
+    border-radius: var(--r-lg);
+    padding: 18px;
+    border-color: color-mix(in srgb, var(--ln) 70%, transparent);
+    transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease), border-color 0.2s ease;
+  }
+  @media (hover: hover) {
+    .card-tap:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  }
+  .card-tap:active { transform: scale(0.98); box-shadow: var(--shadow); }
+
+  .btn { border-radius: var(--r-md); min-height: 48px; font-weight: 700; letter-spacing: 0.005em; }
+  .btn-p {
+    background: linear-gradient(135deg, var(--br2) -40%, var(--br) 60%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 8px 18px -8px color-mix(in srgb, var(--br) 75%, transparent);
+  }
+  @media (hover: hover) { .btn-p:hover:not(:disabled) { filter: brightness(1.06); } }
+  .btn-p:disabled { opacity: 0.5; box-shadow: none; }
+  .btn-g { border-width: 1.5px; box-shadow: 0 1px 0 rgb(19 26 54 / 0.03); }
+
+  .chip { padding: 4px 11px; letter-spacing: 0.01em; }
+  .bar { height: 9px; }
+  .bar > i { background: linear-gradient(90deg, var(--br) 0%, var(--br2) 100%); }
+
+  .opt { border-radius: var(--r-md); padding: 13px 16px; }
+  .opt.sel { box-shadow: 0 0 0 3px color-mix(in srgb, var(--br) 18%, transparent); }
+  .opt.ok { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 16%, transparent); }
+
+  /* হিরো: ভেতরে নরম আলোর আভা ও কাচের মতো স্ট্যাট টাইল */
+  .hero { border-radius: var(--r-xl); padding: 22px 20px; box-shadow: 0 22px 44px -18px rgb(23 35 107 / 0.6); }
+  .hero::before {
+    content: ""; position: absolute; top: -70px; right: -50px; width: 220px; height: 220px;
+    background: radial-gradient(circle, rgb(143 163 255 / 0.45), transparent 65%);
+    pointer-events: none;
+  }
+  .hero > * { position: relative; }
+  .hero [class*="border-white"] { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .hero .btn { box-shadow: 0 10px 22px -10px rgb(0 0 0 / 0.5); }
+
+  /* নিচের নেভিগেশন: ভাসমান, অ্যাক্টিভ ট্যাবে নরম পিল ও ছোট ডট */
+  .tabbar {
+    border-radius: 26px;
+    padding: 6px;
+    border-color: color-mix(in srgb, var(--ln) 80%, transparent);
+    box-shadow: 0 18px 40px -14px rgb(19 26 54 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.5);
+  }
+  :root[data-theme="dark"] .tabbar { box-shadow: 0 18px 40px -14px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.05); }
+  .tabbar button { border-radius: 20px; font-size: 11px; transition: color 0.2s ease, background 0.25s var(--ease), transform 0.12s ease; }
+  .tabbar button:active { transform: scale(0.94); }
+  .tabbar button.on { background: var(--soft); }
+  .tabbar button.on::after {
+    content: ""; position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: var(--shu);
+  }
+
+  .input-box { border-radius: var(--r-md); background: var(--sf2); border-color: transparent; }
+  .input-box:focus { background: var(--sf); }
+
+  .flip-face { border-radius: var(--r-xl); box-shadow: var(--shadow-lg); }
+  .sheet { border-radius: 28px 28px 0 0; box-shadow: 0 -20px 50px -20px rgb(0 0 0 / 0.4); }
+  .sheet::before {
+    content: ""; display: block; width: 40px; height: 4px; border-radius: 4px;
+    background: var(--ln); margin: -8px auto 16px;
+  }
+  .sheet-back { backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+
+  /* পেজ খোলার সময় একবারই ধাপে ধাপে ভেসে ওঠা (প্রথম ৬টি ব্লক) */
+  .view > * { animation: rise 0.45s var(--ease) both; }
+  .view > *:nth-child(2) { animation-delay: 0.04s; }
+  .view > *:nth-child(3) { animation-delay: 0.08s; }
+  .view > *:nth-child(4) { animation-delay: 0.12s; }
+  .view > *:nth-child(5) { animation-delay: 0.16s; }
+  .view > *:nth-child(n+6) { animation-delay: 0.2s; }
+  .view { animation: none; }
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* স্ক্রলবার ও মোবাইল ওভারস্ক্রল */
+html { overscroll-behavior-y: none; }
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--ln); border-radius: 10px; border: 2px solid var(--bg); }
 }
 
 @keyframes in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

@@ -90,7 +90,7 @@ export default function VocabTab() {
                 <p className="text-sm mt-0.5">{c.bn}</p>
                 <p className="t-mu text-[11px] mt-1">{c.book} • Lesson {c.lessonNo}</p>
               </div>
-              <AudioPlayer key={c.id} src={c.audio} text={c.kana || c.jp} compact />
+              <AudioPlayer key={c.id} text={c.kana || c.jp} compact />
             </div>
           ))}
           {list.length > limit && (

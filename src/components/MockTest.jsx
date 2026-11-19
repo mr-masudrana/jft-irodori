@@ -9,19 +9,38 @@ import AudioPlayer from './AudioPlayer';
 const MINUTES = Math.max(10, Math.round(questions.length * 1.2)); // আসল পরীক্ষার অনুপাত (৫০ প্রশ্ন/৬০ মিনিট)
 const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
+// চলমান পরীক্ষা localStorage-এ থাকে: অন্য ট্যাবে গেলে বা রিফ্রেশ করলেও টাইমার (শেষ সময়ের timestamp) ও উত্তর ঠিক থাকে
+const SKEY = 'jft_exam_session';
+const loadSession = () => {
+  try {
+    const s = JSON.parse(localStorage.getItem(SKEY) || 'null');
+    if (s && s.n === questions.length && typeof s.deadline === 'number') return s;
+  } catch { /* ignore */ }
+  return null;
+};
+const saveSession = (s) => { try { localStorage.setItem(SKEY, JSON.stringify(s)); } catch { /* ignore */ } };
+const clearSession = () => { try { localStorage.removeItem(SKEY); } catch { /* ignore */ } };
+const secLeft = (deadline) => Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+
 export default function MockTest({ onSave, onExit }) {
-  const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [left, setLeft] = useState(MINUTES * 60);
+  const [sess] = useState(loadSession);
+  const [idx, setIdx] = useState(Math.min(sess?.idx ?? 0, questions.length - 1));
+  const [answers, setAnswers] = useState(sess?.answers ?? {});
+  const [deadline, setDeadline] = useState(sess?.deadline ?? null);
+  const [left, setLeft] = useState(sess ? secLeft(sess.deadline) : MINUTES * 60);
   const [result, setResult] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all' | 'wrong' | 'correct'
-  const [started, setStarted] = useState(false);
-  const [flags, setFlags] = useState({});
+  const [started, setStarted] = useState(!!sess);
+  const [flags, setFlags] = useState(sess?.flags ?? {});
   const [confirm, setConfirm] = useState(false);
   const ans = useRef({});
   ans.current = answers;
+  const saved = useRef(false); // finish শুধু একবার চলবে (ইতিহাসে ডুপ্লিকেট ও দ্বিগুণ XP ঠেকাতে)
 
   const finish = () => {
+    if (saved.current) return;
+    saved.current = true;
+    clearSession();
     let correct = 0;
     const sec = {};
     questions.forEach((q, i) => {
@@ -35,14 +54,26 @@ export default function MockTest({ onSave, onExit }) {
     onSave({ date: Date.now(), score, correct, total: questions.length, sec });
   };
 
+  // টাইমার: শেষ সময় থেকে হিসাব, তাই ফোন লক/ব্যাকগ্রাউন্ডে গেলেও সময় ঠিক থাকে
   useEffect(() => {
-    if (result || !started) return;
-    const t = setInterval(() => setLeft((l) => {
-      if (l <= 1) { clearInterval(t); setTimeout(finish, 0); return 0; }
-      return l - 1;
-    }), 1000);
-    return () => clearInterval(t);
-  }, [result, started]); // eslint-disable-line
+    if (result || !started || deadline === null) return;
+    const tick = () => { const l = secLeft(deadline); setLeft(l); if (l <= 0) finish(); };
+    tick();
+    const t = setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', tick);
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', tick); };
+  }, [result, started, deadline]); // eslint-disable-line
+
+  useEffect(() => {
+    if (started && !result && deadline !== null && !saved.current) saveSession({ n: questions.length, deadline, idx, answers, flags });
+  }, [started, result, deadline, idx, answers, flags]);
+
+  const begin = () => {
+    saved.current = false;
+    setDeadline(Date.now() + MINUTES * 60000);
+    setLeft(MINUTES * 60);
+    setStarted(true);
+  };
 
   const submit = () => {
     const un = questions.length - Object.keys(answers).length;
@@ -51,8 +82,11 @@ export default function MockTest({ onSave, onExit }) {
   };
 
   const reset = () => {
+    saved.current = false;
+    clearSession();
     setAnswers({});
     setIdx(0);
+    setDeadline(null);
     setLeft(MINUTES * 60);
     setResult(null);
     setFilter('all');
@@ -84,12 +118,13 @@ export default function MockTest({ onSave, onExit }) {
             ))}
           </div>
           <ul className="text-left text-[13px] t-mu space-y-2 leading-relaxed">
-            <li>• শুরু করলে টাইমার চলতে থাকবে, থামানো যাবে না।</li>
+            <li>• শুরু করলে টাইমার চলতে থাকবে, থামানো যাবে না। অন্য ট্যাবে গেলেও সময় চলে; ফিরে এলে আগের অবস্থা পাবেন।</li>
+            <li>• প্রশ্ন সংখ্যা যাই হোক, স্কোর ২৫০-এ রূপান্তরিত হয়; ৮০% (২০০/২৫০) পেলে পাস।</li>
             <li>• প্রশ্ন-নম্বরে ট্যাপ করে যেকোনো প্রশ্নে যাওয়া যায়।</li>
             <li>• নিশ্চিত নন? প্রশ্নে পতাকা দিয়ে পরে আবার দেখুন।</li>
             <li>• শোনার প্রশ্নে 2x বাটনে অডিও দুইবার শোনা যায়।</li>
           </ul>
-          <button onClick={() => setStarted(true)} className="btn btn-p w-full">পরীক্ষা শুরু করুন</button>
+          <button onClick={begin} className="btn btn-p w-full">পরীক্ষা শুরু করুন</button>
         </div>
       </div>
     );
@@ -189,7 +224,7 @@ export default function MockTest({ onSave, onExit }) {
 
   return (
     <div className="space-y-3.5 view">
-      {/* টপ স্ট্যাটাস ও টাইমার */}
+      {/* উপরের স্ট্যাটাস ও টাইমার */}
       <div className="card flex items-center justify-between gap-2 !py-3">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-xs font-bold tabular-nums shrink-0">প্রশ্ন {idx + 1}/{questions.length}</span>
@@ -255,7 +290,7 @@ export default function MockTest({ onSave, onExit }) {
             <div className="flex items-center gap-1.5 text-xs font-bold t-br">
               <Headphones className="w-3.5 h-3.5" /> অডিও মনোযোগ দিয়ে শুনুন
             </div>
-            <AudioPlayer key={q.id} src={q.audio} text={q.transcript} />
+            <AudioPlayer key={q.id} text={q.transcript} />
           </div>
         )}
 

@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Home, BookOpen, Repeat, ClipboardCheck, BarChart3, ArrowLeft, Flame, Star, ChevronRight,
+  Home, BookOpen, Repeat, ClipboardCheck, ArrowLeft, Flame, Star, ChevronRight,
   CheckCircle2, Circle, Eye, EyeOff, Brain, PenLine, Sun, Moon, Search, Sparkles, Trophy, X, Play, Languages, LayoutGrid, Palette, Info,
+  Headphones, Library, Puzzle, PenTool, Lightbulb,
 } from 'lucide-react';
 import booksData from './data/books';
 import AudioPlayer from './components/AudioPlayer';
 import MockTest from './components/MockTest';
-import Offline from './components/Offline';
 import VocabTab from './components/VocabTab';
 import { Review, Quiz } from './components/Review';
-import { useStore, addXp, liveStreak, cards, isDue, dayNum, DAILY_GOAL, todayXp, setResume, speakJa } from './lib/store';
+import { useStore, addXp, liveStreak, cards, isDue, dayNum, DAILY_GOAL, todayXp, setResume, speakJa, jaVoiceStatus } from './lib/store';
 
 const TABS = [
   ['home', Home, 'হোম'],
   ['vocab', Languages, 'ভোকাবুলারি'],
-  ['review', Repeat, 'রিভিউ'],
   ['exam', ClipboardCheck, 'মক টেস্ট'],
   ['more', LayoutGrid, 'মোর'],
 ];
 
-// 'study' = হোমে বই-ভিত্তিক ভোকাবুলারি/গ্রামার/কান্জি → লেসন তালিকা; 'books' = লেসন পেজ; 'progress' = মোর-এর ভেতরের পেজ
-const TAB_IDS = ['home', 'vocab', 'review', 'exam', 'more', 'study', 'books', 'progress'];
-const ROOT_TABS = ['home', 'vocab', 'review', 'exam', 'more'];
-const NAV_OF = { study: 'home', books: 'home', progress: 'more' };
+// 'study' = হোমে বই-ভিত্তিক ভোকাবুলারি/গ্রামার/কান্জি → লেসন তালিকা; 'books' = লেসন পেজ; প্রগ্রেস ও স্ট্যাটাস এখন সরাসরি 'মোর' পেজে
+const TAB_IDS = ['home', 'vocab', 'review', 'exam', 'more', 'study', 'books'];
+const ROOT_TABS = ['home', 'vocab', 'exam', 'more'];
+const NAV_OF = { study: 'home', books: 'home', review: 'home' };
 const CATS = {
   vocab: { label: 'ভোকাবুলারি', glyph: '語' },
   grammar: { label: 'গ্রামার', glyph: '文' },
@@ -98,7 +97,8 @@ export default function App() {
   const [cat, setCat] = useState(init.cat);
   const [q, setQ] = useState('');
   const [dark, setDark] = useState(() => {
-    const saved = localStorage.getItem('jft-theme');
+    let saved = null;
+    try { saved = localStorage.getItem('jft-theme'); } catch { /* স্টোরেজ বন্ধ থাকলে ক্র্যাশ নয় */ }
     if (saved) return saved === 'dark';
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   });
@@ -106,8 +106,18 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0b0f1f' : '#f3f5fa');
-    localStorage.setItem('jft-theme', dark ? 'dark' : 'light');
+    try { localStorage.setItem('jft-theme', dark ? 'dark' : 'light'); } catch { /* ignore */ }
   }, [dark]);
+
+  // জাপানিজ TTS voice আছে কি না (ভয়েস তালিকা অনেক সময় দেরিতে লোড হয়)
+  const [voice, setVoice] = useState(jaVoiceStatus);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    const f = () => setVoice(jaVoiceStatus());
+    speechSynthesis.addEventListener?.('voiceschanged', f);
+    f();
+    return () => speechSynthesis.removeEventListener?.('voiceschanged', f);
+  }, []);
 
   useEffect(() => { setQ(''); }, [sec, lessonId]);
 
@@ -171,7 +181,6 @@ export default function App() {
     : tab === 'study' ? `${book ? book.title + ' • ' : ''}${CATS[cat]?.label || 'লেসন'}`
     : tab === 'review' ? 'আজকের রিভিউ'
     : tab === 'exam' ? 'JFT Mock Exam'
-    : tab === 'progress' ? 'প্রগ্রেস ও স্ট্যাটস'
     : mode === 'quiz' ? 'শব্দ কুইজ'
     : mode === 'review' ? 'লেসন ফ্ল্যাশকার্ড'
     : lesson ? (
@@ -216,9 +225,9 @@ export default function App() {
       <div key={d.id} className="card space-y-3">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-bold text-sm jp">{d.title}</h3>
-          <span className="chip">🎧 অডিও</span>
+          <span className="chip"><Headphones className="w-3.5 h-3.5" /> অডিও</span>
         </div>
-        <AudioPlayer src={d.audio} text={d.lines.map((l) => l.jp).join(' ')} />
+        <AudioPlayer text={d.lines.map((l) => l.jp).join(' ')} />
         {!hide && (
           <div className="space-y-2 pt-1">
             {d.lines.map((l, i) => {
@@ -267,13 +276,13 @@ export default function App() {
     const pct = totalAct ? Math.round((doneAct / totalAct) * 100) : 0;
     // ফাঁকা সেকশন (যেমন লেসন ১-২-এ গ্রামার ও কান্জি নেই) দেখানো হয় না
     const rows = [
-      ['dialogues', '🎧', 'কথোপকথন', lesson.dialogues.length],
-      ['vocab', '📚', lesson.script ? `ভোকাবুলারি (${lesson.script})` : 'ভোকাবুলারি', lesson.vocabulary.length],
+      ['dialogues', Headphones, 'কথোপকথন', lesson.dialogues.length],
+      ['vocab', Library, lesson.script ? `ভোকাবুলারি (${lesson.script})` : 'ভোকাবুলারি', lesson.vocabulary.length],
       ['hiragana', 'あ', 'হিরাগানা চার্ট', kanaCount(lesson.hiragana)],
       ['katakana', 'カ', 'কাতাকানা চার্ট', kanaCount(lesson.katakana)],
-      ['grammar', '🧩', 'গ্রামার', lesson.grammar.length],
-      ['kanji', '🈶', 'কান্জি', lesson.kanji.length],
-      ['tips', '💡', 'জাপানে জীবনের টিপস', (lesson.tips || []).length],
+      ['grammar', Puzzle, 'গ্রামার', lesson.grammar.length],
+      ['kanji', PenTool, 'কান্জি', lesson.kanji.length],
+      ['tips', Lightbulb, 'জাপানে জীবনের টিপস', (lesson.tips || []).length],
     ].filter((r) => r[3] > 0);
 
     return (
@@ -316,7 +325,9 @@ export default function App() {
           <div className="grid grid-cols-2 gap-2.5">
             {rows.map(([id, e, label, n]) => (
               <div key={id} onClick={() => { setSec(id); top(); }} className="card card-tap flex items-center gap-3 !p-3.5">
-                <span className="text-2xl">{e}</span>
+                <span className="w-10 h-10 rounded-xl chip-b grid place-items-center shrink-0">
+                  {typeof e === 'string' ? <span className="jp-display text-xl leading-none">{e}</span> : React.createElement(e, { className: 'w-5 h-5' })}
+                </span>
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-sm truncate">{label}</p>
                   <p className="t-mu text-xs tabular-nums">{n}টি আইটেম</p>
@@ -341,7 +352,7 @@ export default function App() {
                   <p className="font-bold text-sm jp">{a.title}</p>
                   {a.canDo && <p className="t-mu text-xs line-clamp-2 mt-0.5">{a.canDo}</p>}
                 </div>
-                {a.dialogues.length > 0 && <span className="chip shrink-0">🎧 {a.dialogues.length}</span>}
+                {a.dialogues.length > 0 && <span className="chip shrink-0"><Headphones className="w-3.5 h-3.5" /> {a.dialogues.length}</span>}
                 <ChevronRight className="w-4 h-4 t-mu shrink-0" />
               </div>
             );
@@ -447,23 +458,23 @@ export default function App() {
               {on ? 'সম্পন্ন — আবার ট্যাপ করলে চিহ্ন সরে যাবে' : 'শেষ হলে এখানে ট্যাপ করে সম্পন্ন করুন'}
             </p>
           </div>
-          {a.numbers?.length > 0 && (
-            <div className="card space-y-2.5">
-              <p className="font-bold text-sm">সংখ্যা (০–১০) — ট্যাপ করে শুনুন</p>
+          {[[a.numbersTitle || 'সংখ্যা (০–১০) — ট্যাপ করে শুনুন', a.numbers], [a.agesTitle, a.ages]].map(([ttl, arr], gi) => arr?.length > 0 && (
+            <div key={gi} className="card space-y-2.5">
+              <p className="font-bold text-sm">{ttl}</p>
               <div className="grid grid-cols-4 gap-2">
-                {a.numbers.map((x) => (
+                {arr.map((x) => (
                   <button
-                    key={x.n} onClick={() => speakJa(x.jp)} aria-label={`${x.n} ${x.jp}`}
+                    key={`${x.n}-${x.jp}`} onClick={() => speakJa(x.jp)} aria-label={`${x.n} ${x.jp}`}
                     className="rounded-xl py-2 text-center active:scale-95 transition" style={{ background: 'var(--sf2)' }}
                   >
                     <span className="block text-lg font-extrabold tabular-nums t-br leading-none">{x.n}</span>
-                    <span className="block text-base jp-display mt-1 leading-none">{x.jp}</span>
+                    <span className={`block text-base jp-display mt-1 leading-none ${x.hl ? 't-shu' : ''}`}>{x.jp}</span>
                     <span className="block text-[10px] t-mu mt-1">{x.romaji}</span>
                   </button>
                 ))}
               </div>
             </div>
-          )}
+          ))}
           {a.phrases?.length > 0 && (
             <div className="card">
               <p className="font-bold text-sm mb-1">মূল বাক্য ও শব্দ</p>
@@ -517,7 +528,7 @@ export default function App() {
                     <p className="text-xl jp-display mt-0.5">{w.jp}</p>
                     <p className="t-mu text-xs mt-0.5">{w.bn}</p>
                   </div>
-                  <AudioPlayer key={`${lesson.id}-v-${w.jp}-${i}`} src={w.audio} text={w.kana || w.jp} compact />
+                  <AudioPlayer key={`${lesson.id}-v-${w.jp}-${i}`} text={w.kana || w.jp} compact />
                 </div>
               ))
             )}
@@ -558,15 +569,70 @@ export default function App() {
         ))}
 
         {sec === 'kanji' && list.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {list.map((k, i) => (
-              <div key={i} className="card text-center py-5 space-y-1.5">
-                <p className="text-4xl jp-display">{k.char}</p>
-                {k.reading && <p className="t-br text-xs font-semibold jp">{k.reading}</p>}
-                <p className="t-mu text-xs">{k.bn || '—'}</p>
+          <>
+            {lesson.kanjiNote?.length > 0 && (
+              <div className="card space-y-1.5">
+                {lesson.kanjiNote.map((n, i) => <p key={i} className="t-mu text-[13px] leading-relaxed">• {n}</p>)}
               </div>
-            ))}
-          </div>
+            )}
+            {list.some((k) => k.words || k.examples) ? (
+              <div className="space-y-3.5">
+                {list.map((k, i) => (
+                  <div key={i} className="card space-y-3">
+                    <div className="flex items-center gap-4">
+                      <p className="text-5xl jp-display leading-none">{k.char}</p>
+                      <div className="min-w-0">
+                        {k.reading && <p className="t-br text-sm font-semibold jp">{k.reading}</p>}
+                        <p className="font-bold text-sm">{k.bn || '—'}</p>
+                        {k.strokes && <p className="t-mu text-[11px] mt-0.5">আঁচড়: {k.strokes}</p>}
+                      </div>
+                    </div>
+                    {k.note && <p className="t-mu text-xs leading-relaxed">{k.note}</p>}
+                    {k.words?.length > 0 && (
+                      <div>
+                        <p className="font-bold text-xs t-mu">শব্দ</p>
+                        {k.words.map((w, j) => (
+                          <div key={j} className="flex items-center justify-between gap-3 py-2 border-b last:border-b-0" style={{ borderColor: 'var(--ln)' }}>
+                            <div className="min-w-0">
+                              <p className="text-lg jp-display leading-tight">{w.jp}</p>
+                              {w.kana && w.kana !== w.jp && <p className="t-br text-xs font-semibold jp">{w.kana}</p>}
+                              {w.bn && <p className="text-sm">{w.bn}</p>}
+                            </div>
+                            <AudioPlayer key={`${lesson.id}-kw-${i}-${j}`} text={w.kana || w.jp} compact />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {k.examples?.length > 0 && (
+                      <div>
+                        <p className="font-bold text-xs t-mu">বাক্য — পড়ে দেখুন</p>
+                        {k.examples.map((ex, j) => (
+                          <div key={j} className="flex items-center justify-between gap-3 py-2 border-b last:border-b-0" style={{ borderColor: 'var(--ln)' }}>
+                            <div className="min-w-0">
+                              <p className="text-base jp-display leading-snug">{ex.jp}</p>
+                              {ex.kana && <p className="t-br text-xs font-semibold jp">{ex.kana}</p>}
+                              {ex.bn && <p className="text-sm">{ex.bn}</p>}
+                            </div>
+                            <AudioPlayer key={`${lesson.id}-ke-${i}-${j}`} text={ex.kana || ex.jp} compact />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {list.map((k, i) => (
+                  <div key={i} className="card text-center py-5 space-y-1.5">
+                    <p className="text-4xl jp-display">{k.char}</p>
+                    {k.reading && <p className="t-br text-xs font-semibold jp">{k.reading}</p>}
+                    <p className="t-mu text-xs">{k.bn || '—'}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     );
@@ -618,25 +684,10 @@ export default function App() {
 
   const More = () => (
     <div className="space-y-4 view">
-      <div className="space-y-2.5">
-        <h3 className="text-[13px] font-semibold t-mu px-1">অগ্রগতি</h3>
-        {[
-          ['progress', BarChart3, 'প্রগ্রেস ও স্ট্যাটস', 'স্ট্রিক, XP, সাপ্তাহিক চার্ট ও মক টেস্টের ইতিহাস'],
-        ].map(([id, I, label, desc]) => (
-          <div
-            key={id} onClick={() => go(id)} role="button" tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter') go(id); }}
-            className="card card-tap flex items-center gap-3.5"
-          >
-            <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><I className="w-6 h-6" /></div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-[15px]">{label}</p>
-              <p className="t-mu text-xs mt-0.5">{desc}</p>
-            </div>
-            <ChevronRight className="w-5 h-5 t-mu shrink-0" />
-          </div>
-        ))}
-      </div>
+      <section className="space-y-2.5" aria-label="প্রগ্রেস ও স্ট্যাটাস">
+        <h3 className="text-[13px] font-semibold t-mu px-1">প্রগ্রেস ও স্ট্যাটাস</h3>
+        {Progress()}
+      </section>
 
       <div className="space-y-2.5">
         <h3 className="text-[13px] font-semibold t-mu px-1">সেটিংস</h3>
@@ -658,14 +709,28 @@ export default function App() {
             />
           </button>
         </div>
-        <Offline />
+      </div>
+
+      <div className="card flex items-center gap-3.5">
+        <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><Play className="w-5 h-5 fill-current ml-0.5" /></div>
+        <div className="min-w-0">
+          <p className="font-bold text-[15px]">অডিও (জাপানিজ TTS)</p>
+          <p className="t-mu text-xs mt-0.5 leading-relaxed">
+            {{
+              yes: 'জাপানিজ voice পাওয়া গেছে।',
+              no: 'এই ডিভাইসে জাপানিজ voice নেই — ফোনের Text-to-speech সেটিংসে জাপানিজ ভাষা ইনস্টল করুন।',
+              unsupported: 'এই ব্রাউজারে অডিও (TTS) সাপোর্ট নেই।',
+              unknown: 'Voice তালিকা এখনো লোড হয়নি — যেকোনো অডিও বাটন চেপে দেখুন।',
+            }[voice]}
+          </p>
+        </div>
       </div>
 
       <div className="card flex items-center gap-3.5">
         <div className="w-12 h-12 rounded-2xl chip-b grid place-items-center shrink-0"><Info className="w-6 h-6" /></div>
         <div className="min-w-0">
           <p className="font-bold text-[15px]">Irodori JFT-Basic</p>
-          <p className="t-mu text-xs mt-0.5">সংস্করণ 4.6 • ডেটা শুধু আপনার ডিভাইসে সেভ থাকে</p>
+          <p className="t-mu text-xs mt-0.5">সংস্করণ 5.3 • ডেটা শুধু আপনার ডিভাইসে সেভ থাকে</p>
         </div>
       </div>
     </div>
@@ -685,16 +750,16 @@ export default function App() {
     const best = Math.max(0, ...state.history.map((h) => h.score));
 
     return (
-      <div className="space-y-4 view">
+      <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           {[
-            ['🔥', liveStreak(st), 'দিনের স্ট্রিক', 'bg-orange-500/10'],
-            ['⭐', st.xp, 'মোট অর্জিত XP', 'bg-amber-500/10'],
-            ['🧠', `${mastered}/${cards.length}`, 'আয়ত্তকৃত শব্দ', 'bg-indigo-500/10'],
-            ['🏆', best ? `${best}/250` : '—', 'সেরা মক স্কোর', 'bg-emerald-500/10'],
+            [Flame, liveStreak(st), 'দিনের স্ট্রিক', 'bg-orange-500/10 text-orange-500'],
+            [Star, st.xp, 'মোট অর্জিত XP', 'bg-amber-500/10 text-amber-500'],
+            [Brain, `${mastered}/${cards.length}`, 'আয়ত্তকৃত শব্দ', 'bg-indigo-500/10 text-indigo-500'],
+            [Trophy, best ? `${best}/250` : '—', 'সেরা মক স্কোর', 'bg-emerald-500/10 text-emerald-500'],
           ].map(([e, v, l, bg]) => (
             <div key={l} className="card flex items-center gap-3">
-              <div className={`w-11 h-11 rounded-2xl grid place-items-center text-xl shrink-0 ${bg}`}>{e}</div>
+              <div className={`w-11 h-11 rounded-2xl grid place-items-center shrink-0 ${bg}`}>{React.createElement(e, { className: 'w-5 h-5' })}</div>
               <div className="min-w-0">
                 <p className="text-lg font-extrabold tabular-nums truncate">{v}</p>
                 <p className="t-mu text-[11px] font-medium">{l}</p>
@@ -847,24 +912,6 @@ export default function App() {
                 <div className="bar flex-1"><i style={{ width: `${pct}%` }} /></div>
                 <span className="t-br text-xs font-extrabold tabular-nums">{pct}%</span>
               </div>
-
-              <div className="grid grid-cols-3 gap-2.5">
-                {Object.entries(CATS).map(([id, c]) => {
-                  const n = b.lessons.reduce((m, l) => m + (l[id] || []).length, 0);
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => openStudy(id, b.id)}
-                      className="rounded-2xl p-3 text-center space-y-1.5 active:scale-[0.97] transition"
-                      style={{ background: 'var(--sf2)' }}
-                    >
-                      <div className="w-11 h-11 mx-auto rounded-xl chip-b grid place-items-center jp-display text-xl">{c.glyph}</div>
-                      <p className="font-bold text-[13px]">{c.label}</p>
-                      <p className="t-mu text-[11px] tabular-nums -mt-0.5">{n}টি</p>
-                    </button>
-                  );
-                })}
-              </div>
             </section>
           );
         })}
@@ -915,7 +962,7 @@ export default function App() {
         })}
       </div>
     ) : mode === 'quiz' ? (
-      <Quiz key={lesson.id} lesson={lesson} update={update} />
+      <Quiz key={lesson.id} lesson={lesson} state={state} update={update} />
     ) : mode === 'review' ? (
       <Review key={lesson.id} state={state} update={update} lessonId={lesson.id} />
     ) : sec === null ? (
@@ -935,19 +982,23 @@ export default function App() {
     body = (
       <MockTest
         onExit={() => go('home')}
-        onSave={(h) => update((s) => addXp({ ...s, history: [...s.history, h] }, Math.round(h.correct * 3)))}
+        onSave={(h) => update((s) => {
+          const t = dayNum(), n = { ...s, history: [...s.history, h].slice(-50) };
+          // মক টেস্টের XP দিনে একবার
+          return s.quizXp?.mock === t ? n : { ...addXp(n, Math.round(h.correct * 3)), quizXp: { ...s.quizXp, mock: t } };
+        })}
       />
     );
   } else {
-    body = Progress();
+    body = More();
   }
 
   return (
     <div className="min-h-screen">
       <header
-        className="sticky top-0 z-20 backdrop-blur-lg border-b"
+        className="sticky top-0 z-20 backdrop-blur-xl backdrop-saturate-150 border-b"
         style={{
-          background: 'color-mix(in srgb, var(--bg) 85%, transparent)',
+          background: 'color-mix(in srgb, var(--bg) 78%, transparent)',
           borderColor: 'var(--ln)',
           paddingTop: 'env(safe-area-inset-top)',
         }}
@@ -956,7 +1007,7 @@ export default function App() {
           {(!ROOT_TABS.includes(tab) || bookId) ? (
             <button
               onClick={back}
-              aria-label="পিছনে যান"
+              aria-label="পেছনে যান"
               className="w-10 h-10 -ml-2 rounded-full grid place-items-center active:bg-black/5 dark:active:bg-white/10 transition"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -964,7 +1015,7 @@ export default function App() {
           ) : (
             <img src="/icon.svg" alt="" className="w-9 h-9 rounded-xl shadow-sm shrink-0" />
           )}
-          <h1 className="text-[15px] font-extrabold flex-1 truncate">{title}</h1>
+          <h1 className="text-base font-extrabold flex-1 truncate">{title}</h1>
           <span className="chip chip-shu tabular-nums" aria-label={`${liveStreak(st)} দিনের স্ট্রিক`}>
             <Flame className="w-3.5 h-3.5" /> {liveStreak(st)}
           </span>
@@ -978,14 +1029,13 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto px-4 pt-5">{body}</main>
+      <main className="max-w-xl mx-auto px-4 pt-5 pb-4">{body}</main>
 
       <nav className="tabbar">
         {TABS.map(([id, I, label]) => (
           <button key={id} onClick={() => go(id)} className={(NAV_OF[tab] || tab) === id ? 'on' : ''} aria-current={(NAV_OF[tab] || tab) === id ? 'page' : undefined}>
             <I className="w-5 h-5" />
             <span>{label}</span>
-            {id === 'review' && due > 0 && <b className="tab-badge tabular-nums">{due > 99 ? '99+' : due}</b>}
           </button>
         ))}
       </nav>

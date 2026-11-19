@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, RotateCcw, Sparkles, CheckCircle2, XCircle, Trophy, ArrowLeftRight } from 'lucide-react';
 import AudioPlayer from './AudioPlayer';
-import { addXp, rateCard, cards, isDue, shuffle, nextGapDays } from '../lib/store';
+import { addXp, rateCard, cards, isDue, shuffle, nextGapDays, dayNum } from '../lib/store';
 
 const buzz = (ms) => { try { navigator.vibrate?.(ms); } catch { /* ignore */ } };
 const gapLabel = (n) => (n <= 1 ? 'কাল' : `${n} দিন পরে`);
@@ -36,9 +36,10 @@ export function Review({ state, update, lessonId, onDone }) {
 
   const c = queue[0];
   const doneCount = total - queue.length;
+  const cDue = isDue(state, c); // শুধু আজকের due কার্ডে XP (নইলে একই কার্ড বারবার ঘুরিয়ে XP ফার্ম করা যায়)
   const rate = (ok) => {
     buzz(ok ? 12 : [20, 40, 20]);
-    update((s) => addXp(rateCard(s, c.id, ok), ok ? 1 : 0));
+    update((s) => addXp(rateCard(s, c.id, ok), ok && isDue(s, c) ? 1 : 0));
     setQueue((q) => (ok ? q.slice(1) : [...q.slice(1), q[0]]));
     setFlip(false);
     setDx(0);
@@ -62,6 +63,7 @@ export function Review({ state, update, lessonId, onDone }) {
   };
   const tap = () => { if (!moved.current) setFlip((f) => !f); };
   const key = (e) => {
+    if (e.target !== e.currentTarget) return; // ভেতরের অডিও বাটনের কিবোর্ড ইভেন্ট আটকানো হবে না
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFlip((f) => !f); }
     else if (flip && e.key === 'ArrowRight') rate(true);
     else if (flip && e.key === 'ArrowLeft') rate(false);
@@ -107,7 +109,7 @@ export function Review({ state, update, lessonId, onDone }) {
             <div className="flip-face">
               <span className="chip absolute top-4 left-4">{c.book} • L{c.lessonNo}</span>
               <div className="absolute top-3.5 right-3.5">
-                <AudioPlayer key={c.id} src={c.audio} text={c.kana || c.jp} compact />
+                <AudioPlayer key={c.id} text={c.kana || c.jp} compact />
               </div>
 
               <p className="t-br text-base font-semibold jp mt-4">{c.kana}</p>
@@ -122,7 +124,7 @@ export function Review({ state, update, lessonId, onDone }) {
             <div className="flip-face flip-back">
               <span className="chip absolute top-4 left-4">বাংলা অর্থ</span>
               <div className="absolute top-3.5 right-3.5">
-                <AudioPlayer key={`${c.id}-back`} src={c.audio} text={c.kana || c.jp} compact />
+                <AudioPlayer key={`${c.id}-back`} text={c.kana || c.jp} compact />
               </div>
 
               <p className="text-3xl font-extrabold mt-4 leading-snug">{c.bn}</p>
@@ -153,7 +155,7 @@ export function Review({ state, update, lessonId, onDone }) {
           onClick={() => rate(true)}
         >
           <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> মনে আছে</span>
-          <span className="text-[11px] font-medium opacity-85">{gapLabel(nextGapDays(state, c.id))} • +1 XP</span>
+          <span className="text-[11px] font-medium opacity-85">{gapLabel(nextGapDays(state, c.id))}{cDue ? ' • +1 XP' : ''}</span>
         </button>
       </div>
     </div>
@@ -161,7 +163,7 @@ export function Review({ state, update, lessonId, onDone }) {
 }
 
 // লেসনের শব্দ কুইজ (অন্য লেসনের অর্থ থেকে ভুল অপশন নেয়)
-export function Quiz({ lesson, update }) {
+export function Quiz({ lesson, state, update }) {
   const [qs] = useState(() =>
     shuffle(lesson.vocabulary).map((w) => {
       const wrong = shuffle([...new Set(cards.map((c) => c.bn))].filter((b) => b !== w.bn)).slice(0, 3);
@@ -170,8 +172,15 @@ export function Quiz({ lesson, update }) {
     })
   );
   const [i, setI] = useState(0), [pick, setPick] = useState(null), [score, setScore] = useState(0);
+  const nextTimer = useRef(null);
+  useEffect(() => () => clearTimeout(nextTimer.current), []);
   const done = i >= qs.length;
-  useEffect(() => { if (done) update((s) => addXp(s, score * 2)); }, [done]); // eslint-disable-line
+  // একই লেসনের কুইজের XP দিনে একবারই পাওয়া যায়
+  const [alreadyToday] = useState(() => state?.quizXp?.[lesson.id] === dayNum());
+  useEffect(() => {
+    if (!done || alreadyToday) return;
+    update((s) => (s.quizXp?.[lesson.id] === dayNum() ? s : { ...addXp(s, score * 2), quizXp: { ...s.quizXp, [lesson.id]: dayNum() } }));
+  }, [done]); // eslint-disable-line
 
   if (done) {
     const pct = qs.length ? Math.round((score / qs.length) * 100) : 0;
@@ -179,7 +188,7 @@ export function Quiz({ lesson, update }) {
       <div className="card text-center py-10 px-6 space-y-3 view">
         <div className="hanko pop w-16 h-16 text-3xl mx-auto" aria-label="গ্রেড">{pct >= 80 ? '優' : pct >= 60 ? '良' : '可'}</div>
         <p className="text-4xl font-extrabold tabular-nums">{score} / {qs.length}</p>
-        <span className="chip"><Sparkles className="w-3.5 h-3.5" /> +{score * 2} XP অর্জিত</span>
+        <span className="chip"><Sparkles className="w-3.5 h-3.5" /> {alreadyToday ? 'আজ এই লেসনের XP আগেই পেয়েছেন' : `+${score * 2} XP অর্জিত`}</span>
         <p className="t-mu text-sm">সঠিকতার হার {pct}% • {pct >= 80 ? 'দারুণ ফলাফল' : pct >= 60 ? 'ভালো হয়েছে, আরেকটু অনুশীলন করুন' : 'ফ্ল্যাশকার্ডে আবার অনুশীলন করুন'}</p>
       </div>
     );
@@ -190,7 +199,7 @@ export function Quiz({ lesson, update }) {
     if (pick !== null) return;
     setPick(k);
     if (k === q.a) setScore((x) => x + 1); else buzz([20, 40, 20]);
-    setTimeout(() => { setI((x) => x + 1); setPick(null); }, 850);
+    nextTimer.current = setTimeout(() => { setI((x) => x + 1); setPick(null); }, 850);
   };
 
   return (
@@ -204,7 +213,7 @@ export function Quiz({ lesson, update }) {
         <span className="chip">সঠিক বাংলা অর্থ বাছাই করুন</span>
         <p className="text-4xl jp-display leading-tight">{q.w.jp}</p>
         <div className="flex justify-center pt-1">
-          <AudioPlayer key={`${i}-${q.w.jp}`} src={q.w.audio} text={q.w.kana || q.w.jp} compact />
+          <AudioPlayer key={`${i}-${q.w.jp}`} text={q.w.kana || q.w.jp} compact />
         </div>
       </div>
 

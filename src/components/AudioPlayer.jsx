@@ -1,46 +1,49 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Play, Pause, Repeat, Gauge } from 'lucide-react';
-import { speakJa, stopSpeech } from '../lib/store';
+import { speakJa, stopSpeech, onSpeak } from '../lib/store';
 
-// MP3 না থাকলে (বা ব্যর্থ হলে) নিজে থেকেই ব্রাউজারের জাপানিজ TTS ব্যবহার করে।
-export default function AudioPlayer({ src, text, compact = false }) {
-  const audio = useRef(null), timer = useRef(null), speedRef = useRef(1), failed = useRef(!src);
+// শুধু ব্রাউজারের জাপানিজ TTS ব্যবহার করে (কোনো বাইরের অডিও ফাইল নেই)।
+export default function AudioPlayer({ text, compact = false }) {
+  const timer = useRef(null), speedRef = useRef(1), activeRef = useRef(false);
+  const owner = useRef({}).current; // এই প্লেয়ারের পরিচয়: অন্য প্লেয়ার/বাটন বাজাতে শুরু করলে এটি থেমে যায়
   const [playing, setPlaying] = useState(false);
   const [jft, setJft] = useState(false);
   const [count, setCount] = useState(0);
   const [speed, setSpeed] = useState(1);
   const [note, setNote] = useState('');
 
-  const stop = () => {
-    audio.current?.pause();
-    stopSpeech();
+  // শুধু নিজের অবস্থা রিসেট (স্পিচ বন্ধ করে না)
+  const halt = () => {
     clearTimeout(timer.current);
+    activeRef.current = false;
     setPlaying(false);
     setCount(0);
   };
+  const stop = () => { stopSpeech(); halt(); };
 
-  useEffect(() => () => {
-    clearTimeout(timer.current);
-    audio.current?.pause();
-    stopSpeech();
-  }, []);
+  useEffect(() => {
+    const off = onSpeak((o) => { if (o !== owner) halt(); });
+    return () => {
+      off();
+      clearTimeout(timer.current);
+      if (activeRef.current) stopSpeech(); // নিজে বাজাচ্ছিলে তবেই থামাও, অন্যের অডিও নয়
+    };
+  }, []); // eslint-disable-line
 
   const playOnce = (n, total) => {
     setCount(n);
-    const done = () => {
-      if (n < total) timer.current = setTimeout(() => playOnce(n + 1, total), 1500);
-      else { setPlaying(false); setCount(0); }
-    };
-    const tts = () => {
-      if (!text) { setPlaying(false); setNote('অডিও নেই'); return; }
-      speakJa(text, { rate: 0.85 * speedRef.current, onend: done });
-    };
-    if (!failed.current && audio.current) {
-      audio.current.currentTime = 0;
-      audio.current.playbackRate = speedRef.current;
-      audio.current.onended = done;
-      audio.current.play().catch(() => { failed.current = true; tts(); });
-    } else tts();
+    if (!text) { halt(); setNote('অডিও নেই'); return; }
+    const ok = speakJa(text, {
+      rate: 0.85 * speedRef.current,
+      owner,
+      onend: (why) => {
+        if (why === 'interrupted') return; // যে থামিয়েছে সে-ই অবস্থা সামলেছে
+        if (why === 'error') { halt(); setNote('অডিও চালানো যায়নি'); return; }
+        if (n < total) timer.current = setTimeout(() => playOnce(n + 1, total), 1500);
+        else halt();
+      },
+    });
+    if (!ok) { halt(); setNote('এই ব্রাউজারে অডিও (TTS) সাপোর্ট নেই'); }
   };
 
   const start = (e, mode) => {
@@ -48,6 +51,7 @@ export default function AudioPlayer({ src, text, compact = false }) {
     if (playing) return stop();
     setNote('');
     setJft(mode);
+    activeRef.current = true;
     setPlaying(true);
     playOnce(1, mode ? 2 : 1);
   };
@@ -57,34 +61,29 @@ export default function AudioPlayer({ src, text, compact = false }) {
     const s = speedRef.current === 1 ? 0.75 : 1;
     speedRef.current = s;
     setSpeed(s);
-    if (audio.current) audio.current.playbackRate = s;
   };
-
-  const el = src ? <audio ref={audio} src={src} preload="none" onError={() => { failed.current = true; }} /> : null;
 
   if (compact) {
     return (
-      <>
-        {el}
-        <button
-          type="button"
-          onClick={(e) => start(e, false)}
-          aria-label="Play audio"
-          className={`w-11 h-11 rounded-full grid place-items-center shrink-0 transition active:scale-95 ${
-            playing ? 'btn-p ring-4 ring-indigo-500/20' : 'chip-b hover:opacity-90'
-          }`}
-        >
-          {playing ? (
-            <div className="flex items-center gap-[2.5px]">
-              <span className="eq-bar" />
-              <span className="eq-bar" />
-              <span className="eq-bar" />
-            </div>
-          ) : (
-            <Play className="w-4 h-4 fill-current ml-0.5" />
-          )}
-        </button>
-      </>
+      <button
+        type="button"
+        onClick={(e) => start(e, false)}
+        aria-label={playing ? 'Stop audio' : 'Play audio'}
+        title={note || undefined}
+        className={`w-11 h-11 rounded-full grid place-items-center shrink-0 transition active:scale-95 ${
+          playing ? 'btn-p ring-4 ring-indigo-500/20' : 'chip-b hover:opacity-90'
+        }`}
+      >
+        {playing ? (
+          <div className="flex items-center gap-[2.5px]">
+            <span className="eq-bar" />
+            <span className="eq-bar" />
+            <span className="eq-bar" />
+          </div>
+        ) : (
+          <Play className="w-4 h-4 fill-current ml-0.5" />
+        )}
+      </button>
     );
   }
 
@@ -94,7 +93,6 @@ export default function AudioPlayer({ src, text, compact = false }) {
       className="flex items-center gap-2 flex-wrap rounded-2xl p-2"
       style={{ background: 'var(--sf2)' }}
     >
-      {el}
       <button
         type="button"
         onClick={(e) => start(e, false)}
